@@ -1,5 +1,5 @@
 
-from .stockdata import *
+from .stock_data import *
 from .basic import *
 
 
@@ -8,11 +8,13 @@ class TimeMachine:
     def __init__(self):
         self.stock_data = StockData()
         self.agents = []
-        self.codes = ['600256']
+        self.codes = []
 
     def add_agent(self, agent):
         self.agents.append(agent)
 
+    def add_code(self, code):
+        self.codes.append(code)
 
     def date_changed(self, begin_time, current_time):
         for code in self.codes:
