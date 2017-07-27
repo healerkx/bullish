@@ -22,9 +22,10 @@ class TimeMachine:
             begin = formatted_date(begin_time)
             end = formatted_date(current_time)
             # TODO: Optimized!
+            print(end, ":", end='')
             timed_data = data[data.date < end]
             for agent in self.agents:
-                agent.handle(timed_data)
+                agent.handle(code, timed_data)
         
     def start(self, begin, end):
         begin_time = unix_time(begin)

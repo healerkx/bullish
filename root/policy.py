@@ -13,8 +13,10 @@ class DMA_Policy(Policy):
     """
     def handle(self, data):
         ma5 = talib.MA(data.close.values, timeperiod=5)
-        ma60 = talib.MA(data.close.values, timeperiod=60)
+        ma60 = talib.MA(data.close.values, timeperiod=10)
 
         diff = ma5[-1] - ma60[-1]
+        close = data.close.values[-1]
         print(diff)
-        return diff
+        
+        return diff, close
