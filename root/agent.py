@@ -11,7 +11,7 @@ class Agent:
         self.highest = 0
 
     def add_policy(self, policy_name):
-        policy = DMA_Policy() # TODO: Create policy by name
+        policy = Seek3BlackCrows_Policy() #DMA_Policy() # TODO: Create policy by name
         self.policy_list.append(policy)
 
     def get_repo_count(self, code):
@@ -53,23 +53,36 @@ class Agent:
         self.capital += count * close
         self.print_capital(code, close)
 
-    def handle(self, code, data):
+    def handle(self, context):
+        self.handle_data(context.get_code(), context.get_time(), context.get_data())
+
+    def handle_data(self, code, date, data):
         """
         An agent can compose multi policies for a DataFrame
         """
 
         for policy in self.policy_list:
-            diff, close = policy.handle(data)
+            result = policy.handle(data)
+
+            if sum(result) > 0:
+                print(code, date)
+                print(result)
+            continue
+            diff, close = result
             if self.last_diff * diff < 0:
                 if diff > 0:
+                    print(date, end=' ')
                     self.buy(code, close)
                 elif diff < 0:
+                    print(date, end=' ')
                     self.sell(code, close)
 
             self.last_diff = diff
 
             total = self.get_total(code, close)
             if total > self.highest:
-                print('HIGH!')
+                print('HIGH!', date)
                 self.highest = total
                 self.print_capital(code, close)
+
+

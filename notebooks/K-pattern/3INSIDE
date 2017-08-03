@@ -1,0 +1,8 @@
+Explain
+https://learn.tradimo.com/lessons/1576
+
+
+talib.CDL3INSIDE returns 100, 0, -100, Maybe 100 means uptrend, -100 means downtrend.?
+
+
+600149, 2016-12-20, -100 for downtrend

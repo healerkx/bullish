@@ -1,4 +1,5 @@
 
+from .context import *
 from .stock_data import *
 from .basic import *
 
@@ -22,10 +23,15 @@ class TimeMachine:
             begin = formatted_date(begin_time)
             end = formatted_date(current_time)
             # TODO: Optimized!
-            print(end, ":", end='')
+            # print(end, ":", end='')
             timed_data = data[data.date < end]
+            context = Context()
+            context.set_code(code)
+            context.set_time(end)
+            context.set_data(timed_data)
             for agent in self.agents:
-                agent.handle(code, timed_data)
+                #agent.handle_data(code, end, timed_data)
+                agent.handle(context)
         
     def start(self, begin, end):
         begin_time = unix_time(begin)
@@ -36,3 +42,4 @@ class TimeMachine:
         while current_time <= end_time:
             self.date_changed(begin_time, current_time)
             current_time += day_seconds
+            
