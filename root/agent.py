@@ -1,5 +1,5 @@
 
-from .policy import *
+from .policies import *
 
 class Agent:
 
@@ -11,7 +11,7 @@ class Agent:
         self.highest = 0
 
     def add_policy(self, policy_name):
-        policy = Seek3BlackCrows_Policy() #DMA_Policy() # TODO: Create policy by name
+        policy = Seek3BlackCrowsPolicy() #DMA_Policy() # TODO: Create policies by name
         self.policy_list.append(policy)
 
     def get_repo_count(self, code):

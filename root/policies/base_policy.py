@@ -27,7 +27,7 @@ class Policy:
 
 
 
-class Seek3BlackCrows_Policy(Policy):
+class Seek3BlackCrowsPolicy(Policy):
     """
     寻找三只黑乌鸦测试
     :return Result

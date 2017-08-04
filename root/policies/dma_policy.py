@@ -1,5 +1,6 @@
 
-from .policy import *
+from .base_policy import *
+import talib
 
 
 @Policy.register('DMA')
