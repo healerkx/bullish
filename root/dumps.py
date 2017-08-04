@@ -2,6 +2,6 @@
 Dumps data everyday
 """
 
-from .stockdata import *
+from .stock_data import *
 
-data = Data()
+data = StockData()

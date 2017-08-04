@@ -5,15 +5,18 @@ class Context:
     """
 
     def __init__(self):
-        pass
+        self.codes = []
+        self.code = ""
+        self.data = None
+        self.time = None
 
-    def get_codes(self, codes):
+    def get_codes(self):
         return self.codes
 
     def set_codes(self, codes):
         self.codes = codes
 
-    def get_code(self, code):
+    def get_code(self):
         return self.code
 
     def set_code(self, code):
@@ -29,6 +32,7 @@ class Context:
 
     def get_time(self):
         """
+        :return:
         """
         return self.time
 

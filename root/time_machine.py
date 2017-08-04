@@ -30,7 +30,6 @@ class TimeMachine:
             context.set_time(end)
             context.set_data(timed_data)
             for agent in self.agents:
-                #agent.handle_data(code, end, timed_data)
                 agent.handle(context)
         
     def start(self, begin, end):
@@ -42,4 +41,3 @@ class TimeMachine:
         while current_time <= end_time:
             self.date_changed(begin_time, current_time)
             current_time += day_seconds
-            

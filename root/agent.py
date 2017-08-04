@@ -54,15 +54,12 @@ class Agent:
         self.print_capital(code, close)
 
     def handle(self, context):
-        self.handle_data(context.get_code(), context.get_time(), context.get_data())
-
-    def handle_data(self, code, date, data):
         """
         An agent can compose multi policies for a DataFrame
         """
-
         for policy in self.policy_list:
-            result = policy.handle(data)
+            data = context.get_data()
+            result = policy.handle(context)
 
             if sum(result) > 0:
                 print(code, date)
