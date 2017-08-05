@@ -1,6 +1,7 @@
 
 from .policies import *
 
+
 class Agent:
 
     def __init__(self):
@@ -9,10 +10,17 @@ class Agent:
         self.repo = dict()
         self.last_diff = 0
         self.highest = 0
+        self.concerned_codes = []
+
+    def add_concerned_code(self, code):
+        self.concerned_codes.append(code)
+
+    def get_concerned_codes(self):
+        return self.concerned_codes
 
     def add_policy(self, policy_name):
-        policy = Seek3BlackCrowsPolicy() #DMA_Policy() # TODO: Create policies by name
-        self.policy_list.append(policy)
+        policy_clz = Policy.get_policy_clz(policy_name)
+        self.policy_list.append(policy_clz())
 
     def get_repo_count(self, code):
         if code in self.repo:
@@ -57,14 +65,17 @@ class Agent:
         """
         An agent can compose multi policies for a DataFrame
         """
+
+        context.set_codes(self.get_concerned_codes())
+
         for policy in self.policy_list:
-            data = context.get_data()
             result = policy.handle(context)
 
             if sum(result) > 0:
-                print(code, date)
                 print(result)
+
             continue
+
             diff, close = result
             if self.last_diff * diff < 0:
                 if diff > 0:

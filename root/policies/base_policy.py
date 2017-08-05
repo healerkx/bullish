@@ -4,11 +4,17 @@ from ..basic import *
 
 
 class Policy:
-
+    """
+    A policy handles a Context object, returns a Result object.
+    Generally speaking, policies take context as input, 
+    calculate several stock estimation, including buying and selling threshold 
+    for a certain stock, and other information.
+    """
     policy_map = dict()
 
     def handle(self, context):
         """
+        @param context
         """
         pass
 
@@ -25,8 +31,7 @@ class Policy:
         return Policy.policy_map[policy_name]
 
 
-
-
+#
 class Seek3BlackCrowsPolicy(Policy):
     """
     寻找三只黑乌鸦测试

@@ -1,4 +1,5 @@
 
+from .stock_data import *
 
 class Context:
     """
@@ -9,6 +10,7 @@ class Context:
         self.code = ""
         self.data = None
         self.time = None
+        self.stock_data = StockData()
 
     def get_codes(self):
         return self.codes
@@ -16,24 +18,17 @@ class Context:
     def set_codes(self, codes):
         self.codes = codes
 
-    def get_code(self):
-        return self.code
-
-    def set_code(self, code):
-        self.code = code
-
-    def get_data(self):
+    def get_k_data(self, code):
         """
+        Get K data by code
         """
-        return self.data
-
-    def set_data(self, data):
-        self.data = data
+        k_data = self.stock_data.get_k_data(code)
+        if self.time:
+            return k_data[k_data.date <= self.time]
+        else:
+            return k_data
 
     def get_time(self):
-        """
-        :return:
-        """
         return self.time
 
     def set_time(self, time):
