@@ -71,6 +71,9 @@ class Agent:
         for policy in self.policy_list:
             result = policy.handle(context)
 
+
+            continue
+            
             if sum(result) > 0:
                 print(result)
 

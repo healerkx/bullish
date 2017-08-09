@@ -28,8 +28,17 @@ class Context:
         else:
             return k_data
 
+    def get_profile_data(self, date=None):
+        if not date:
+            date = self.time
+        profile_data = self.stock_data.get_profile_data(date)
+        return profile_data
+
     def get_time(self):
         return self.time
 
     def set_time(self, time):
         self.time = time
+
+    def get_stock_basics(self):
+        return self.stock_data.get_stock_basics()

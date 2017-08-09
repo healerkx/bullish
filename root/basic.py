@@ -20,3 +20,5 @@ def formatted_time(unixtime):
 
 def formatted_date(unixtime):
     return time.strftime('%Y-%m-%d', time.localtime(unixtime))
+
+
