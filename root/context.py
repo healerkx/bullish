@@ -41,4 +41,5 @@ class Context:
         self.time = time
 
     def get_stock_basics(self):
-        return self.stock_data.get_stock_basics()
+        today = formatted_date(self.get_time())
+        return self.stock_data.get_stock_basics(today)

@@ -1,0 +1,9 @@
+
+[main]
+name = "dump_pickle"
+triggers = ["every-day 10:02:00"]
+import=["actions2", "../"]
+
+[action.main]
+type="dump_pickle"
+next=""

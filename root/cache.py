@@ -64,10 +64,12 @@ def f(a, b):
 def f2(a, b):
     return a + b
 
-print(default_memory_storage.memory_storage)
-print(f("111", "22"))
-print(default_memory_storage.memory_storage)
-print(f("111", "22"))
-print(default_memory_storage.memory_storage)
-print(f("111", "223"))
-print(default_memory_storage.memory_storage)
+
+if False:
+    print(default_memory_storage.memory_storage)
+    print(f("111", "22"))
+    print(default_memory_storage.memory_storage)
+    print(f("111", "22"))
+    print(default_memory_storage.memory_storage)
+    print(f("111", "223"))
+    print(default_memory_storage.memory_storage)

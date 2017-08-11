@@ -66,6 +66,7 @@ class C1Policy(Policy):
 
         # 2. 选择流通股本数量较小的, 最好在3亿以下, 中小板尤佳
         basics = context.get_stock_basics()
+        basics = basics.loc[basics.outstanding > 0.0]
         basics = basics.sort_values('outstanding')
         # Why some stock's outstanding is 0???
         print(basics[:20])
@@ -74,7 +75,7 @@ class C1Policy(Policy):
 
         # 4. 选择之前多日成交量较为均衡或有涨停未放量现象的个股（之前一直无量涨停的个股除外）
 
-        print(p1[['code', 'name', 'volume', 'avm5d', 'volume_ratio', 'changepercent']])
+        print(p1[['code', 'volume', 'avm5d', 'volume_ratio', 'changepercent']])
 
 
     def handle(self, context):
