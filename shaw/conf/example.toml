@@ -1,0 +1,15 @@
+
+
+[config]
+
+date_begin="2017-08-11"
+date_end="2017-08-11"
+
+
+[policy.p1]
+name="C1"
+weight=10
+
+#[policy.p2]
+#name="C2"
+#weight=10
