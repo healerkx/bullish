@@ -2,7 +2,9 @@
 from actions import *
 import time
 import sys
-sys.path.append('/Users/healer/Projects/fregata')
+# TODO:
+project_path = os.path.realpath(os.path.join(__file__, '../../../'))
+sys.path.append(project_path)
 from root import *
 
 @Actions.register("dump_pickle")
