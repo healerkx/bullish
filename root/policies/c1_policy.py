@@ -55,7 +55,7 @@ class C1Policy(Policy):
             
         pd['avm5d'] = vol_list
 
-        open_minutes_today = 70
+        open_minutes_today = 5
         pd['volume_ratio'] = pd['volume'] / open_minutes_today / pd['avm5d']
 
         p1 = pd.loc[pd.changepercent > 4.0][pd.volume_ratio > 1]
@@ -69,12 +69,12 @@ class C1Policy(Policy):
         basics = basics.loc[basics.outstanding > 0.0]
         basics = basics.sort_values('outstanding')
         # Why some stock's outstanding is 0???
-        print(basics[:20])
+        # print(basics[:20])
         
         # 3. 选择之前换手率连续多日在3%以下或连续几日平均换手率在3%以下的个股
 
         # 4. 选择之前多日成交量较为均衡或有涨停未放量现象的个股（之前一直无量涨停的个股除外）
-
+        
         print(p1[['code', 'volume', 'avm5d', 'volume_ratio', 'changepercent']])
 
 
