@@ -47,6 +47,6 @@ for code in codes:
     tm = TimeMachine()
     tm.add_agent(ag)
     
-    tm.start('2017-08-11', '2017-08-11')
+    tm.start('2017-08-15', '2017-08-15')
 
     print("\n\n", "#" * 40, "\n\n")
