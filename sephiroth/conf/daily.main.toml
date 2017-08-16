@@ -1,2 +1,2 @@
 
-import=["daily0925.toml"]
+import=["daily_0925.toml", "daily_close.toml"]

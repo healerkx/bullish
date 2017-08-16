@@ -16,9 +16,38 @@ class C1Policy(Policy):
             d[v[0]] = v[8]  # 0 is for code, 8 is for volume
         return d
 
-    def get_code_volume_dict_by_date(self, context, current_time, day_offset):
+    def get_last_work_day(self, current_time, workday_offset):
+        '''
+        Calculate date by workdays offset
+        '''
+        if workday_offset == 0:
+            return time.strftime('%Y-%m-%d', time.localtime(current_time))
         day_seconds = 24 * 3600
-        pd = context.get_profile_data(formatted_date(current_time + day_offset * day_seconds))
+        today = time.localtime(current_time)
+        w = int(time.strftime("%w", today))
+        workday_offset_abs = abs(workday_offset)
+        day_offset = abs(workday_offset)
+        step = int(workday_offset / abs(workday_offset))
+        i = 0
+        while i < workday_offset_abs:
+            w += step
+            if w > 6:
+                w = 0
+            elif w < 0:
+                w = 6
+
+            if w != 6 and w != 0:
+                i += 1
+            else:
+                day_offset += 1
+            
+        return time.strftime('%Y-%m-%d', time.localtime(current_time + step * day_offset * day_seconds))
+
+    def get_code_volume_dict_by_date(self, context, current_time, workday_offset):
+        day_seconds = 24 * 3600
+        date = self.get_last_work_day(current_time, workday_offset)
+        
+        pd = context.get_profile_data(date)
         return self.dataframe_to_code_volume_dict(pd)
 
     def get_volume_avg(self, code, *ds):
@@ -41,7 +70,7 @@ class C1Policy(Policy):
         d3 = self.get_code_volume_dict_by_date(context, time, -3)
         d2 = self.get_code_volume_dict_by_date(context, time, -2)
         d1 = self.get_code_volume_dict_by_date(context, time, -1)
-
+        
         pd = context.get_profile_data(formatted_date(time))
         if pd is None:
             raise Exception("Today all data is empty")
@@ -75,11 +104,17 @@ class C1Policy(Policy):
 
         # 4. 选择之前多日成交量较为均衡或有涨停未放量现象的个股（之前一直无量涨停的个股除外）
         
-        print(p1[['code', 'volume', 'avm5d', 'volume_ratio', 'changepercent']])
+        r = p1[['code', 'volume', 'avm5d', 'volume_ratio', 'changepercent']]
+
+        r = r[0:20]
+        print(r)
+        return r
 
 
     def handle(self, context):
         """
         """
-        self.find_stock_codes(context)
+        result = self.find_stock_codes(context)
+
+        return result
 
