@@ -1,7 +1,7 @@
 
 [main]
 name = "run_c1_policy"
-triggers = ["every-day 11:58:56"]
+triggers = ["every-day 09:25:00"]
 import=["actions2", "../"]
 
 [action.main]
