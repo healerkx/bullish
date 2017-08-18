@@ -50,6 +50,8 @@ class StockData:
 
     def get_k_data(self, code, **params):
         """
+        从MySQL拿数据, 如果max(date)不是昨天, 则更新？
+        
         :param code:
         :param params:
         :return:
