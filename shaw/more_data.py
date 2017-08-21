@@ -82,6 +82,12 @@ def handle_code_data(db, code):
     return insert_data(db, code, df)
 
 
+def get_data_info():
+    pass
+
+def insert_data():
+    pass
+
 def main(argv):
     conv = MySQLdb.converters.conversions.copy()
     conv[12] = str
