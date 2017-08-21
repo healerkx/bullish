@@ -51,7 +51,7 @@ def get_daily_data(db, code):
     return df
 
 #
-def insert_data(db, code, df):
+def insert_code_data(db, code, df):
     """
     """
     values = []
@@ -79,14 +79,45 @@ def handle_code_data(db, code):
     if df is None or df.empty:
         return False
 
-    return insert_data(db, code, df)
+    return insert_code_data(db, code, df)
 
 
-def get_data_info():
+def query_data_info(db):
+    cursor = db.cursor()
+
+    # count how many codes
+    sql = "select count(distinct(code)) from sk_stock_daily_data;"
+    r = cursor.execute(sql)
+    if r == 1:
+        count = cursor.fetchall()
+        print("Contains (%d) codes by now" % count[0][0])
+    
+    # TODO: max history date
+    sql = "select max(date) from sk_stock_daily_data;"
+    r = cursor.execute(sql)
+    date = '1970-01-01'
+    if r == 1:
+        date = cursor.fetchall()[0][0]
+        print("The latest date is (%s)" % date)
+
+    # TODO: count how many code date=max-history-date?
+    sql = "select count(distinct(code)) from sk_stock_daily_data where date = '%s';" % date
+    r = cursor.execute(sql)
+    if r == 1:
+        count = cursor.fetchall()
+        print("Contains (%d) codes in the latest date (%s)" % (count[0][0], date))
+
+
+def insert_data(db):
+    codes = get_all_codes()
+    for code in codes:
+        res = handle_code_data(db, code)
+        if res:
+            time.sleep(0)  
+
+def bank_data():
     pass
 
-def insert_data():
-    pass
 
 def main(argv):
     conv = MySQLdb.converters.conversions.copy()
@@ -94,14 +125,18 @@ def main(argv):
     config = {'db':'fregata', 'user':'root', 'passwd':'root', 'host':'127.0.0.1', 'port':3306}
     print('DB config:', config)
     db = MySQLdb.connect(**config, conv=conv)
-    codes = get_all_codes()
-    
-    for code in codes:
-        res = handle_code_data(db, code)
-        if res:
-            time.sleep(0)
-        # break
+
+    if len(argv) == 0:
+        insert_data(db)
+    if argv[0] == 'insert':
+        insert_data(db)
+    elif argv[0] == 'query':
+        query_data_info(db)
+    elif argv[0] == 'detail':
+        query_data_detail(db)     
+    elif argv[0] == 'bank':
+        bank_data(db)
 
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])
