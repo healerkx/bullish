@@ -5,7 +5,8 @@ import tushare as ts
 import pandas
 from .basic import *
 from .cache import *
-
+import pandas as pd
+import MySQLdb
 
 from .stock_data_storage import StockDataStorage
 
@@ -31,41 +32,75 @@ class StockData:
 
         if not os.path.exists(self.profile_path):
             os.mkdir(self.profile_path)
+        
+        #
+        config = {'db':'fregata', 'user':'root', 'passwd':'root', 'host':'127.0.0.1', 'port':3306}
+        db = MySQLdb.connect(**config)
+        self.db = db
 
     def get_k_path(self):
         if self.k_path:
             return self.k_path
         return ''
 
-    def get_local_k_data(self, code):
+    def get_k_data_from_file(self, code):
         k_data_file = os.path.join(self.k_path, code)
         if os.path.exists(k_data_file):
             return pandas.read_pickle(k_data_file)
         else:
             return None
 
-    def set_local_k_data(self, code, k_data):
+    def get_k_data_from_db(self, code, db):
+        sql = "select date, open, close, high, low, volume from sk_stock_daily_data where code='%s' and status=1;" % code
+        with db.cursor(cursorclass=MySQLdb.cursors.DictCursor) as cursor:
+            r = cursor.execute(sql)
+            if r == 0:
+                return None
+            dataset = cursor.fetchall()
+
+        dates = [d['date'] for d in dataset]
+        df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume'], index=dates)
+        return df 
+
+    def set_k_data_to_file(self, code, k_data):
         k_data_file = os.path.join(self.k_path, code)
         pandas.to_pickle(k_data, k_data_file)
 
-    def get_k_data(self, code, **params):
+    def get_k_data(self, code):
         """
-        从MySQL拿数据, 如果max(date)不是昨天, 则更新？
-        
+        Try load data from file cache first,
+        Try load data from MySQL, the update the pickle file
+        Call remote API to fetch K data if MySQL-don't have data
         :param code:
         :param params:
         :return:
         """
-        k_data = self.get_local_k_data(code)
+        k_data = self.get_k_data_from_file(code)
         if k_data is not None:
             return k_data
 
-        k_data = ts.get_k_data(code, **params)
+        k_data = self.get_k_data_from_db(code, self.db)
+        if k_data is not None:
+            self.set_k_data_to_file(code, k_data)
+            return k_data
+        
+        k_data = ts.get_k_data(code)
+        if k_data is not None:
+            d = { 
+                'open': k_data['open'].values, 
+                'close': k_data['close'].values, 
+                'high': k_data['high'].values, 
+                'low': k_data['low'].values, 
+                'volume': k_data['volume'].values 
+                }
+            k_data = pd.DataFrame(d, index=k_data['date'].values, columns=['open', 'close', 'high', 'low', 'volume'])
+            self.set_k_data_to_file(code, k_data)
+            return k_data
 
-        # TODO: Merge DataFrame, using df1.append(df2).drop_duplicates()
-        self.set_local_k_data(code, k_data)
-        return k_data
+        return None
 
+    ########################################################
+    # Profile!
     def get_local_profile_data(self, date):
         profile_data_file = os.path.join(self.profile_path, date)
         if os.path.exists(profile_data_file):

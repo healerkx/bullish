@@ -32,8 +32,9 @@ CDLFuncList = [
 # Start an experiment
 
 stock_data = StockData()
-# d = stock_data.get_stock_basics("2017-08-10")
-#print(d)
+d = stock_data.get_k_data("600460")
+print(d)
+exit()
 
 
 #

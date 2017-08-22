@@ -123,6 +123,8 @@ def bank_data():
     pass
 
 def print_dataframe(db, code, filename=None):
+    import time
+    a = time.time()
     sql = "select date, open, close, high, low, volume from sk_stock_daily_data where code='%s'" % code
     with db.cursor(cursorclass=MySQLdb.cursors.DictCursor) as cursor:
 
@@ -139,7 +141,9 @@ def print_dataframe(db, code, filename=None):
     
     if filename:
         pd.to_pickle(df, filename)
-    print(df[:10])
+    #print(df[:10])
+    b = time.time()
+    print('use', b - a, 'seconds')
     return df
 
 def main(argv):
