@@ -20,6 +20,7 @@ import pytoml as toml
 from root import *
 from datetime import datetime, date
 from datetime import timedelta
+import pandas as pd
 
 stock_data = StockData()
 
@@ -135,8 +136,6 @@ def print_dataframe(db, code, filename=None):
         dataset = cursor.fetchall()
 
     dates = [d['date'] for d in dataset]
-
-    import pandas as pd
     df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume'], index=dates)
     
     if filename:

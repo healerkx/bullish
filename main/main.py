@@ -32,7 +32,7 @@ CDLFuncList = [
 # Start an experiment
 
 stock_data = StockData()
-d = stock_data.get_k_data("600460")
+d = stock_data.get_tick_data("600460", '2017-08-22')
 print(d)
 exit()
 

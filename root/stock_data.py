@@ -26,13 +26,16 @@ class StockData:
         if self.config:
             self.k_path = os.path.join(self.config['config']['path'], self.config['config']['k'])
             self.profile_path = os.path.join(self.config['config']['path'], self.config['config']['profile'])
+            self.tick_path = os.path.join(self.config['config']['path'], self.config['config']['tick'])
 
         if not os.path.exists(self.k_path):
             os.mkdir(self.k_path)
 
         if not os.path.exists(self.profile_path):
             os.mkdir(self.profile_path)
-        
+
+        if not os.path.exists(self.tick_path):
+            os.mkdir(self.tick_path)
         #
         config = {'db':'fregata', 'user':'root', 'passwd':'root', 'host':'127.0.0.1', 'port':3306}
         db = MySQLdb.connect(**config)
@@ -60,7 +63,7 @@ class StockData:
 
         dates = [d['date'] for d in dataset]
         df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume'], index=dates)
-        return df 
+        return df
 
     def set_k_data_to_file(self, code, k_data):
         k_data_file = os.path.join(self.k_path, code)
@@ -98,6 +101,41 @@ class StockData:
             return k_data
 
         return None
+
+    ########################################################
+    def get_tick_data(self, code, date):
+        """
+        """
+        tick_data = self.get_tick_data_from_file(code, date)
+        if tick_data is not None:
+            return tick_data
+
+        df = ts.get_tick_data(code, date=date)
+        if df is None or df.empty:
+            return None
+        if len(df['time'][0]) > 10:
+            print(df['time'][0])
+            return None
+        
+        self.set_tick_data_to_file(code, date, df)
+        return df
+
+    def get_tick_data_from_file(self, code, date):
+        tick_filename = self.get_tick_path(code, date)
+        if not os.path.exists(tick_filename):
+            return None
+        return pandas.read_pickle(tick_filename)
+
+    def set_tick_data_to_file(self, code, date, df):
+        tick_filename = self.get_tick_path(code, date)
+        pandas.to_pickle(df, tick_filename)
+
+    def get_tick_path(self, code, date):
+        path = os.path.join(self.tick_path, code)
+        if not os.path.exists(path):
+            os.mkdir(path)        
+        return os.path.join(path, date)
+
 
     ########################################################
     # Profile!
