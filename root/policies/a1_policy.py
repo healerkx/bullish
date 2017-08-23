@@ -2,10 +2,10 @@
 from .base_policy import *
 import talib
 
-@Policy.register('C1')
-class C1Policy(Policy):
+@Policy.register('A1')
+class A1Policy(Policy):
     """
-    一般选股策略C1
+    一般选股策略A1
     """
 
     def dataframe_to_code_volume_dict(self, df):

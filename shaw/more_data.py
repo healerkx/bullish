@@ -128,7 +128,6 @@ def print_dataframe(db, code, filename=None):
     a = time.time()
     sql = "select date, open, close, high, low, volume from sk_stock_daily_data where code='%s'" % code
     with db.cursor(cursorclass=MySQLdb.cursors.DictCursor) as cursor:
-
         r = cursor.execute(sql)
         if r == 0:
             print("None data")

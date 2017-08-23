@@ -178,3 +178,4 @@ class StockData:
             read=pandas.read_pickle, write=pandas.to_pickle)
     def get_stock_basics(self, date):
         return ts.get_stock_basics()
+
