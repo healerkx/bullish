@@ -7,9 +7,6 @@ date_end="2017-08-11"
 travel_type = "watch"
 
 [policy.p1]
-name="C1"
+name="A1"
 weight=10
 
-#[policy.p2]
-#name="C2"
-#weight=10

@@ -4,23 +4,21 @@ from .basic import *
 
 
 class TimeMachine:
-
+    """
+    A time machine can take one agent travelling in history (data).
+    """
     def __init__(self):
-        self.agents = []
+        self.agent = None
 
-    def add_agent(self, agent):
-        self.agents.append(agent)
+    def set_agent(self, agent):
+        self.agent = agent
 
-
-    def on_date(self, begin_time, current_time):
+    def on_date(self, context, begin_time, current_time):
         begin = formatted_date(begin_time)
         end = formatted_date(current_time)
 
-        context = Context()
         context.set_time(current_time)
-        #print(2)
-        for agent in self.agents:
-            agent.handle(context)        
+        self.agent.handle(context)
         
     def start(self, begin, end):
         begin_time = unix_time(begin)
@@ -28,7 +26,8 @@ class TimeMachine:
 
         day_seconds = 3600 * 24
         current_time = begin_time
+        context = Context()
         while current_time <= end_time:
             # self.date_changed(begin_time, current_time)
-            self.on_date(begin_time, current_time)
+            self.on_date(context, begin_time, current_time)
             current_time += day_seconds
