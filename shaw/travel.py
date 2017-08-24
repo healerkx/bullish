@@ -3,7 +3,6 @@ import sys, os
 project_path = os.path.realpath(os.path.join(__file__, '../../'))
 sys.path.append(project_path)
 
-import pytoml as toml
 from root import *
 
 
@@ -23,6 +22,7 @@ def do_travel(config):
     tm.set_agent(ag)
 
     tm.start(config['config']['date_begin'], config['config']['date_end'])
+
 
 #
 def travel(argv):

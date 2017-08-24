@@ -22,12 +22,15 @@ from datetime import datetime, date
 from datetime import timedelta
 import pandas as pd
 
+
 stock_data = StockData()
+
 
 def get_all_codes():
     global stock_data
     basics = stock_data.get_stock_basics('2017-08-16')
     return basics.index
+
 
 #
 def get_daily_data(db, code):
@@ -51,6 +54,7 @@ def get_daily_data(db, code):
         print(code, 'suspension?')
     return df
 
+
 #
 def insert_code_data(db, code, df):
     """
@@ -73,6 +77,7 @@ def insert_code_data(db, code, df):
         r = cursor.execute(sql)
         db.commit()
     return True
+
 
 #
 def handle_code_data(db, code):
@@ -113,6 +118,10 @@ def query_data_info(db):
     cursor.close()
 
 
+def query_data_detail(db):
+    pass
+
+
 def insert_data(db):
     codes = get_all_codes()
     for code in codes:
@@ -122,6 +131,7 @@ def insert_data(db):
 
 def bank_data():
     pass
+
 
 def print_dataframe(db, code, filename=None):
     import time
@@ -139,15 +149,16 @@ def print_dataframe(db, code, filename=None):
     
     if filename:
         pd.to_pickle(df, filename)
-    #print(df[:10])
+
     b = time.time()
     print('use', b - a, 'seconds')
     return df
 
+
 def main(argv):
     conv = MySQLdb.converters.conversions.copy()
     conv[12] = str
-    config = {'db':'fregata', 'user':'root', 'passwd':'root', 'host':'127.0.0.1', 'port':3306}
+    config = {'db': 'fregata', 'user': 'root', 'passwd': 'root', 'host': '127.0.0.1', 'port': 3306}
     print('DB config:', config)
     db = MySQLdb.connect(**config, conv=conv)
 

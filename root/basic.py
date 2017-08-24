@@ -22,11 +22,11 @@ def formatted_date(unixtime):
     return time.strftime('%Y-%m-%d', time.localtime(unixtime))
 
 
-def get_changepercent(close_or_trade, last_close):
+def p_change(close_or_trade, last_close):
     """
     :param close_or_trade:
     :param last_close:
-    :return changepercent:
+    :return change percent:
     (收盘价 - 上一个交易日的收盘价) / 上一个交易日的收盘价 * 100
     (现在交易价 - 上一个交易日的收盘价) / 上一个交易日的收盘价 * 100
     """

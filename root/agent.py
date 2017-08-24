@@ -39,27 +39,31 @@ class Agent:
         total = self.capital + hold * close
         print('%.2f = (%.2f) + %d * %.2f' % (total, self.capital, hold, close))
 
-    def buy(self, code, close):
+    def buy(self, code, price, count=None):
         exist = self.get_repo_count(code)
 
-        count = self.capital // close
+        if not count:
+            count = self.capital // price
         self.repo[code] = count + exist
-        print("BUY:", code, count, close, count * close)
+        print("BUY:", code, count, price, count * price)
         
-        self.capital -= count * close
-        self.print_capital(code, close)
+        self.capital -= count * price
+        self.print_capital(code, price)
 
-    def sell(self, code, close):
+    def sell(self, code, price, count=None):
         exist = self.get_repo_count(code)
         if exist == 0:
             return
+        if count and count > exist:
+            # Not so much
+            return
 
-        count = exist
+        count = exist if count is None else count
         self.repo[code] = exist - count
-        print("SEL:", code, count, close, count * close)
+        print("SEL:", code, count, price, count * price)
         
-        self.capital += count * close
-        self.print_capital(code, close)
+        self.capital += count * price
+        self.print_capital(code, price)
 
     def setup(self, context):
         for policy in self.policy_list:

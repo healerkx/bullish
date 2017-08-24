@@ -1,7 +1,6 @@
 
 from .stock_data import *
 from datetime import datetime
-import time
 
 
 class Context:
@@ -51,8 +50,8 @@ class Context:
     def get_time(self):
         return self.time
 
-    def set_time(self, time):
-        self.time = time
+    def set_time(self, context_time):
+        self.time = context_time
 
     def get_stock_basics(self):
         today = formatted_date(self.get_time())
