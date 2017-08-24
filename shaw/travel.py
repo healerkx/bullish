@@ -6,11 +6,14 @@ sys.path.append(project_path)
 import pytoml as toml
 from root import *
 
+
 def do_travel(config):
-    print(config)
     ag = Agent()
     if 'policy' not in config:
         return
+
+    if 'codes' not in config['config']:
+        ag.add_concerned_code('600460')
 
     for tab_name in config['policy']:
         policy = config['policy'][tab_name]

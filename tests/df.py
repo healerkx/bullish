@@ -1,12 +1,19 @@
 
 
 
-import pandas as pd
-import time
-a = time.time()
-df = pd.read_pickle('/Users/healer/a.p')
 
-df['a'] = df.shift()['volume'] +  df.shift().shift()['volume']
-b = time.time()
+class A:
+    def f(self, a):
+        print(a)
 
-print(b - a)
+def cached(f):
+    def w(r):
+        f(r * r)
+    return w
+
+a = A()
+a.f(5)
+
+a.f = cached(a.f)
+
+a.f(6)

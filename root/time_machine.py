@@ -23,10 +23,15 @@ class TimeMachine:
     def start(self, begin, end):
         begin_time = unix_time(begin)
         end_time = unix_time(end)
+        print(begin, end)
 
         day_seconds = 3600 * 24
         current_time = begin_time
-        context = Context()
+        context = Context(self)
+        context.set_codes(self.agent.get_concerned_codes())
+
+        self.agent.setup(context)
+
         while current_time <= end_time:
             # self.date_changed(begin_time, current_time)
             self.on_date(context, begin_time, current_time)

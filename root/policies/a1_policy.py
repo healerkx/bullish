@@ -6,6 +6,7 @@ import talib
 class A1Policy(Policy):
     """
     一般选股策略A1
+    (要有每天缓存的Profile data才能计算, ts.get_profile_data() )
     """
 
     def dataframe_to_code_volume_dict(self, df):

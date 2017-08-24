@@ -1,15 +1,19 @@
 
 from .stock_data import *
+from datetime import datetime
+import time
+
 
 class Context:
     """
     """
 
-    def __init__(self):
+    def __init__(self, time_machine):
         self.codes = []
         self.code = ""
         self.data = None
         self.time = None
+        self.time_machine = time_machine
         self.stock_data = StockData()
 
     def get_codes(self):
@@ -24,9 +28,19 @@ class Context:
         """
         k_data = self.stock_data.get_k_data(code)
         if self.time:
-            return k_data[k_data.date <= self.time]
+            end_date = datetime.fromtimestamp(self.time).date()
+            return k_data.loc[k_data.index <= end_date]
         else:
             return k_data
+
+    def get_tick_data(self, code, date=None):
+        """
+        Get tick data by params code and date(or context date)
+        """
+        if not date:
+            date = str(datetime.fromtimestamp(self.time).date())        
+        tick_data = self.stock_data.get_tick_data(code, date)
+        return tick_data
 
     def get_profile_data(self, date=None):
         if not date:

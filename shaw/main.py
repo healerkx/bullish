@@ -8,16 +8,17 @@ from root import *
 
 def usage():
     return """
+Commands:
 policy
     show all the policies
 travel
     Makes an agent travelling in a time machine
     """
 
-
+#
 def show_police_list(argv):
-    for policy_name, policy_clz in Policy.policy_map.items():
-        print(policy_name, policy_clz.__doc__)
+    for policy_name, policy_clz in sorted(Policy.policy_map.items()):
+        print(policy_name, ":", policy_clz.__doc__)
 
 
 if __name__ == '__main__':

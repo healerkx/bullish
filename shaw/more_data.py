@@ -158,13 +158,11 @@ def main(argv):
     elif argv[0] == 'query':
         query_data_info(db)
     elif argv[0] == 'detail':
-        query_data_detail(db)     
+        query_data_detail(db)
     elif argv[0] == 'bank':
         bank_data(db)
     else:
-        filename = None
-        if len(argv) > 1:
-            filename = argv[1]
+        filename = argv[1] if len(argv) > 1 else None
         print_dataframe(db, argv[0], filename)
 
 
