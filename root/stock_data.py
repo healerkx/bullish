@@ -139,12 +139,12 @@ class StockData:
     ########################################################
     def get_codes(self):
         sql = "select code from sk_stock_basic_data"
-        with db.cursor() as cursor:
+        with self.db.cursor() as cursor:
             r = cursor.execute(sql)
             if r == 0:
                 return None
             codes = cursor.fetchall()
-            return codes
+            return map(lambda x: x[0], codes)
         return []
         
 
