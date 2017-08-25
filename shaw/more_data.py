@@ -132,12 +132,35 @@ def insert_data(db):
 def bank_data():
     pass
 
+def update_codes_name_to_db(db, df):
+    l = len(df.index)
+    i = 0
+    cursor = db.cursor()
+    codes = df.index
+    names = df.name.values
+    while i < l:
+        code = codes[i]
+        name = names[i]
+        i += 1
+        query = "select name from sk_stock_basic_data where code='%s';" % code
+        r = cursor.execute(query)
+        if r == 1:
+            n = cursor.fetchone()
+            if n[0] == '' or n[0] != name:
+                sql = "update sk_stock_basic_data set name='%s' where code='%s';" % (name, code)
+                print(sql)
+                cursor.execute(sql)
+        else:
+            sql = "insert into sk_stock_basic_data (name, code) values ('%s', '%s');" %  (name, code)
+            print(sql)
+            cursor.execute(sql)
+
+    db.commit()
+
 def update_codes_to_db(db, df):
     import numpy as np
     cursor = db.cursor()
     for v in df.values:
-        
-        name = '' if pd.isnull(v[1]) else v[1]
         industry = '' if pd.isnull(v[1]) else v[2]
         area = '' if pd.isnull(v[1]) else v[3]
         sme = 0 if pd.isnull(v[4]) else 1
@@ -145,39 +168,49 @@ def update_codes_to_db(db, df):
         st = 0 if pd.isnull(v[6]) else 1
         code = v[0]
         
-        sql = "update sk_stock_basic_data set name='%s', industry='%s', area='%s', is_sme=%d, is_gem=%d, is_st=%d where code='%s';" % (name, industry, area, sme, gem, st, code)
+        sql = "update sk_stock_basic_data set industry='%s', area='%s', is_sme=%d, is_gem=%d, is_st=%d where code='%s';" % (industry, area, sme, gem, st, code)
         # print(sql)
         cursor.execute(sql)
     db.commit()
-        
-        
+
 
 def update_codes(db):
-    # 行业
+    # update names
+    df0 = ts.get_stock_basics()
+    update_codes_name_to_db(db, df0)
+
     if os.path.exists('codes-info.pickle'):
+        print('Refresh the basic info, please rm codes-info.pickle in advance.')
         df = pd.read_pickle('codes-info.pickle')
         update_codes_to_db(db, df)
         return
+
+    # 行业
     df1 = ts.get_industry_classified()
-    
+    # df1 MUST have name column, otherwise the list'index would be changed
+
     #df2 = ts.get_concept_classified()
     #df2.drop('name', axis=1, inplace=True)
     #df1.merge(df2, left_on='code', right_on='code', how='outer')
 
+    # 地域
     df3 = ts.get_area_classified()
     df3.drop('name', axis=1, inplace=True)
     df1 = df1.merge(df3, left_on='code', right_on='code', how='outer')
     
+    # 中小板
     df4 = ts.get_sme_classified()
     df4.drop('name', axis=1, inplace=True)
     df4['sme'] = 1
     df1 = df1.merge(df4, left_on='code', right_on='code', how='outer')
     
+    # 创业板
     df5 = ts.get_gem_classified()
     df5.drop('name', axis=1, inplace=True)
     df5['gem'] = 1
     df1 = df1.merge(df5, left_on='code', right_on='code', how='outer')
     
+    # *ST
     df6 = ts.get_st_classified()
     df6.drop('name', axis=1, inplace=True)
     df6['st'] = 1
@@ -185,6 +218,7 @@ def update_codes(db):
     
     pd.to_pickle(df1, 'codes-info.pickle')
     update_codes_to_db(db, df1)
+
 
 def print_dataframe(db, code, filename=None):
     import time
