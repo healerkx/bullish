@@ -127,11 +127,64 @@ def insert_data(db):
     for code in codes:
         res = handle_code_data(db, code)
         if res:
-            time.sleep(0)  
+            time.sleep(0)
 
 def bank_data():
     pass
 
+def update_codes_to_db(db, df):
+    import numpy as np
+    cursor = db.cursor()
+    for v in df.values:
+        
+        name = '' if pd.isnull(v[1]) else v[1]
+        industry = '' if pd.isnull(v[1]) else v[2]
+        area = '' if pd.isnull(v[1]) else v[3]
+        sme = 0 if pd.isnull(v[4]) else 1
+        gem = 0 if pd.isnull(v[5]) else 1
+        st = 0 if pd.isnull(v[6]) else 1
+        code = v[0]
+        
+        sql = "update sk_stock_basic_data set name='%s', industry='%s', area='%s', is_sme=%d, is_gem=%d, is_st=%d where code='%s';" % (name, industry, area, sme, gem, st, code)
+        # print(sql)
+        cursor.execute(sql)
+    db.commit()
+        
+        
+
+def update_codes(db):
+    # 行业
+    if os.path.exists('codes-info.pickle'):
+        df = pd.read_pickle('codes-info.pickle')
+        update_codes_to_db(db, df)
+        return
+    df1 = ts.get_industry_classified()
+    
+    #df2 = ts.get_concept_classified()
+    #df2.drop('name', axis=1, inplace=True)
+    #df1.merge(df2, left_on='code', right_on='code', how='outer')
+
+    df3 = ts.get_area_classified()
+    df3.drop('name', axis=1, inplace=True)
+    df1 = df1.merge(df3, left_on='code', right_on='code', how='outer')
+    
+    df4 = ts.get_sme_classified()
+    df4.drop('name', axis=1, inplace=True)
+    df4['sme'] = 1
+    df1 = df1.merge(df4, left_on='code', right_on='code', how='outer')
+    
+    df5 = ts.get_gem_classified()
+    df5.drop('name', axis=1, inplace=True)
+    df5['gem'] = 1
+    df1 = df1.merge(df5, left_on='code', right_on='code', how='outer')
+    
+    df6 = ts.get_st_classified()
+    df6.drop('name', axis=1, inplace=True)
+    df6['st'] = 1
+    df1 = df1.merge(df6, left_on='code', right_on='code', how='outer')
+    
+    pd.to_pickle(df1, 'codes-info.pickle')
+    update_codes_to_db(db, df1)
 
 def print_dataframe(db, code, filename=None):
     import time
@@ -164,8 +217,10 @@ def main(argv):
 
     if len(argv) == 0:
         insert_data(db)
-    if argv[0] == 'insert':
+    elif argv[0] == 'insert':
         insert_data(db)
+    elif argv[0] == 'update-codes':
+        update_codes(db)        
     elif argv[0] == 'query':
         query_data_info(db)
     elif argv[0] == 'detail':

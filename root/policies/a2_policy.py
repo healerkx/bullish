@@ -4,6 +4,7 @@ import talib
 from datetime import datetime
 from ..stock_data import *
 
+# A2和A1的计算结果进行过对比, 数据吻合
 
 @Policy.register('A2')
 class A2Policy(Policy):
@@ -36,7 +37,7 @@ class A2Policy(Policy):
         print("@", k_data)
         # Get some day tick-data at 9:25, 
         tick_data_0925 = self.get_tick_data_at_0925(context, code)
-
+        print("#", tick_data_0925)
         # TODO: Perform the policy to calc 'volume_ratio'
 
 

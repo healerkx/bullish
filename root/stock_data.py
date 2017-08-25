@@ -136,6 +136,19 @@ class StockData:
             os.mkdir(path)        
         return os.path.join(path, date)
 
+    ########################################################
+    def get_codes(self):
+        sql = "select code from sk_stock_basic_data"
+        with db.cursor() as cursor:
+            r = cursor.execute(sql)
+            if r == 0:
+                return None
+            codes = cursor.fetchall()
+            return codes
+        return []
+        
+
+
 
     ########################################################
     # Profile!

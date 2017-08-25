@@ -12,7 +12,7 @@ def do_travel(config):
         return
 
     if 'codes' not in config['config']:
-        ag.add_concerned_code('600460')
+        ag.add_concerned_code('002600')
 
     for tab_name in config['policy']:
         policy = config['policy'][tab_name]
