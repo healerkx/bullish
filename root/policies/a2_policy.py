@@ -28,16 +28,19 @@ class A2Policy(Policy):
     def get_tick_data_at_0925(self, context, code):
         df = context.get_tick_data(code)
         tick_data_0925 = df.iloc[-1]
-        print(tick_data_0925['time'])
+        # print(tick_data_0925['time'])
         return tick_data_0925
 
 
     def eval_stock_code(self, context, code):
         k_data = self.get_last_5_days_volume_data(context, code)
-        print("@", k_data)
+        #print("@", k_data)
+        volume_sum5d = k_data['volume_sum5d']
+
         # Get some day tick-data at 9:25, 
         tick_data_0925 = self.get_tick_data_at_0925(context, code)
-        print("#", tick_data_0925)
+        volume_ratio = tick_data_0925['volume'] / volume_sum5d.values[0] / 5 * 60 * 4 * 5
+        print('Volume-Ratio is', volume_ratio)
         # TODO: Perform the policy to calc 'volume_ratio'
 
 
