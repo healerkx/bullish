@@ -1,5 +1,4 @@
 """
-
 ts.get_stock_basics => codes
 foreach code in codes 
     ts.get_k_data(code) from last_save_date to yesterday
@@ -20,6 +19,7 @@ import pytoml as toml
 from root import *
 from datetime import datetime, date
 from datetime import timedelta
+import time
 import pandas as pd
 
 
@@ -260,6 +260,9 @@ def update_codes_to_db(db, df):
 
 
 def update_codes(db):
+    """
+    更新code的基本信息（行业/概念/地域/中小板/创业板/ST）
+    """
     # update names
     df0 = ts.get_stock_basics()
     update_codes_name_to_db(db, df0)
@@ -274,9 +277,13 @@ def update_codes(db):
     df1 = ts.get_industry_classified()
     # df1 MUST have name column, otherwise the list'index would be changed
 
-    #df2 = ts.get_concept_classified()
-    #df2.drop('name', axis=1, inplace=True)
-    #df1.merge(df2, left_on='code', right_on='code', how='outer')
+    try:
+        # 概念相关的API不稳定(TODO: 概念可能是易变的值, 可以分别处理update)
+        df2 = ts.get_concept_classified()
+        df2.drop('name', axis=1, inplace=True)
+        df1 = df1.merge(df2, left_on='code', right_on='code', how='outer')        
+    except:
+        pass
 
     # 地域
     df3 = ts.get_area_classified()
@@ -305,10 +312,12 @@ def update_codes(db):
     update_codes_to_db(db, df1)
 
 
-def print_dataframe(db, code, filename=None):
-    import time
-    a = time.time()
-    sql = "select date, open, close, high, low, volume from sk_stock_daily_data where code='%s'" % code
+def load_dataframe(db, code, filename=None):
+    """
+    打印/加载* DataFrame by code, or save into filename
+    """
+    begin_time = time.time()
+    sql = "select date, open, close, high, low, volume, turnover from sk_stock_daily_data where code='%s'" % code
     with db.cursor(cursorclass=MySQLdb.cursors.DictCursor) as cursor:
         r = cursor.execute(sql)
         if r == 0:
@@ -317,13 +326,13 @@ def print_dataframe(db, code, filename=None):
         dataset = cursor.fetchall()
 
     dates = [d['date'] for d in dataset]
-    df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume'], index=dates)
+    df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume', 'turnover'], index=dates)
     
     if filename:
         pd.to_pickle(df, filename)
 
-    b = time.time()
-    print('use', b - a, 'seconds')
+    print(df)
+    print('use', time.time() - begin_time, 'seconds')
     return df
 
 
@@ -350,7 +359,7 @@ def main(argv):
         bank_data(db)
     else:
         filename = argv[1] if len(argv) > 1 else None
-        print_dataframe(db, argv[0], filename)
+        load_dataframe(db, argv[0], filename)
 
 
 if __name__ == '__main__':
