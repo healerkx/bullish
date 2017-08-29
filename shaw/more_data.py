@@ -23,14 +23,9 @@ from datetime import timedelta
 import pandas as pd
 
 
-stock_data = StockData()
-
-
 def get_all_codes():
-    global stock_data
-    basics = stock_data.get_stock_basics('2017-08-16')
-    return basics.index
-
+    stock_data = StockData()    
+    return stock_data.get_codes()
 
 #
 def get_daily_data(db, code):
@@ -52,27 +47,67 @@ def get_daily_data(db, code):
     df = ts.get_k_data(code, start=from_date, end=yesterday)
     if from_date == yesterday and df.empty:
         print(code, 'suspension?')
+
+    df1 = ts.get_hist_data(code, start=from_date, end=yesterday)
+    # Rebuild
+    d = {
+        'open': df['open'].values, 
+        'close': df['close'].values, 
+        'high': df['high'].values, 
+        'low': df['low'].values, 
+        'volume': df['volume'].values 
+        }
+    df0 = pd.DataFrame(d, columns=['open', 'close', 'high', 'low', 'volume'], index=df.date)    
+    df0['turnover'] = df1['turnover']
+
+    return df0
+
+def get_daily_data_ex(db, code):
+    """
+    """
+    from_date = '2014-10-01'
+    yesterday = str(datetime.today().date() + timedelta(days=-1))
+
+    print(db, code)
+    df = ts.get_hist_data(code)
     return df
 
 
 #
 def insert_code_data(db, code, df):
     """
+    DF struct: [open, close, high, low, volume, turnover]
+    insert into sk_stock_daily_data 
+    (open,  close, high,  low,   volume,    turnover, date,        code,    status, create_time, update_time) values 
+    ('4.9', '4.98','4.98','4.87','91300.0', '1.75',   '2017-08-24','000010',1,1503974955,1503974955),
+    ('4.97','5.0', '5.03','4.9', '127823.0','2.45',   '2017-08-25','000010',1,1503974955,1503974955),
+    ('4.99','5.04','5.06','4.96','78045.0', '1.49',   '2017-08-28','000010',1,1503974955,1503974955);
     """
-    values = []
+    lists = []
     ctime = str(int(time.time()))
+    
+    values = df.values
+    dates = df.index
+    count = len(values)
+    i = 0
+    while i < count:
+        date = str(dates[i])
+        value = values[i]
 
-    for entry in df.values:
-        v = list(map(lambda x: "'%s'" % x,  entry))
+        v = list(map(lambda x: "'%s'" % x,  value))
+        v.append("'%s'" % date)
+        v.append("'%s'" % code)
         v.append('1')
         v.append(ctime)
         v.append(ctime)
         s = ",".join(v)
-        values.append("(" + s + ")")
+        lists.append("(" + s + ")")
 
-    sql = "insert into sk_stock_daily_data (date, open, close, high, low, volume, code, status, create_time, update_time) values " + ','.join(values) + ";\n\n"
+        i += 1
+        
+    sql = "insert into sk_stock_daily_data (open, close, high, low, volume, turnover, date, code, status, create_time, update_time) values " + ','.join(lists) + ";\n\n"
     print(sql)
-    
+    # exit()
     with db.cursor() as cursor:
         r = cursor.execute(sql)
         db.commit()
@@ -84,11 +119,13 @@ def handle_code_data(db, code):
     df = get_daily_data(db, code)
     if df is None or df.empty:
         return False
-
     return insert_code_data(db, code, df)
 
 
 def query_data_info(db):
+    """
+    基础信息查询
+    """
     cursor = db.cursor()
     # count how many codes
     sql = "select count(distinct(code)) from sk_stock_daily_data;"
@@ -123,11 +160,59 @@ def query_data_detail(db):
 
 
 def insert_data(db):
-    codes = get_all_codes()
-    for code in codes:
+    stock_data = StockData()
+    for code in stock_data.get_codes():
         res = handle_code_data(db, code)
-        if res:
-            time.sleep(0)
+
+def get_data_setter(fields, values):
+    setter_list = []
+    i = 0
+    for field in fields:
+        setter_list.append("%s='%s'" % (field, values[i]))
+        i += 1
+    return ','.join(setter_list)
+
+def update_code_data(db, code, df):
+    "Turnover only (ts.get_hist_data() 只能拿到*未复权*数据, 故不记录)"
+    dates = df.index[::-1]
+    values = df.values[::-1]
+    count = len(dates)
+    insert_values = []
+    i = 0
+    cursor = db.cursor(cursorclass=MySQLdb.cursors.DictCursor)
+    ctime = str(int(time.time()))
+    while i < count:
+        date = dates[i]
+        value = values[i]
+        
+        where = " where code='%s' and date='%s'" % (code, date)
+        query = "select * from sk_stock_daily_data " + where
+        r = cursor.execute(query)
+        if r == 1:
+            d = cursor.fetchone()
+            if float(d['turnover']) == 0.0:
+                sql = "update sk_stock_daily_data set turnover='%s' where code='%s' and date='%s';" % (value[-1], code, date)
+                cursor.execute(sql)
+                
+        i += 1
+
+    db.commit()
+    cursor.close()
+
+# Update data
+def fetch_and_update_code_data(db, code):
+    df = get_daily_data_ex(db, code)
+    print(code)
+    if df is not None and not df.empty:
+        update_code_data(db, code, df)
+
+
+def update_data(db):
+    # update all the codes about ma(x), v_ma(x), turnover...
+    stock_data = StockData()
+    for code in stock_data.get_codes():
+        res = fetch_and_update_code_data(db, code)
+       
 
 def bank_data():
     pass
@@ -253,6 +338,8 @@ def main(argv):
         insert_data(db)
     elif argv[0] == 'insert':
         insert_data(db)
+    elif argv[0] == 'update-values':
+        update_data(db)        
     elif argv[0] == 'update-codes':
         update_codes(db)        
     elif argv[0] == 'query':

@@ -136,15 +136,30 @@ class StockData:
             os.mkdir(path)        
         return os.path.join(path, date)
 
+    @staticmethod
+    def get_option(options, option_name):
+        if option_name in options:
+            return options[option_name]
+        else:
+            return None
+
     ########################################################
-    def get_codes(self):
+    def get_codes(self, **options):
         sql = "select code from sk_stock_basic_data"
+        where_clause = []
+        if StockData.get_option(options, 'sme'):
+            where_clause.append('is_sme = 1')
+
+        if len(where_clause) > 0:
+            sql += ' where ' + ' AND '.join(where_clause)
+
         with self.db.cursor() as cursor:
+            print(sql)
             r = cursor.execute(sql)
             if r == 0:
                 return None
             codes = cursor.fetchall()
-            return map(lambda x: x[0], codes)
+            return list(map(lambda x: x[0], codes))
         return []
         
 

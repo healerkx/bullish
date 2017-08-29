@@ -10,6 +10,14 @@ from ..stock_data import *
 class A2Policy(Policy):
     """
     一般选股策略A2(A1的优化版本)
+    第一步、9:25竞价结束后，对量比进行排行，看前30名，涨幅在4%以下的；
+    第二步、选择流通股本数量较小的，最好在3亿以下，中小板尤佳；
+    第三步、选择之前换手率连续多日在3%以下或连续几日平均换手率在3%以下的个股；
+    第四步、选择之前多日成交量较为均衡或有涨停未放量现象的个股（之前一直无量涨停的个股除外）；
+    第五步、最好选择个人曾经操作过的、相对比较熟悉的个股进行介入操作。
+    考虑到优化执行速度,对上述执行顺序进行了*调整*:
+    1. 选择中小板的codes, 作为第一个筛选条件(股本在3亿以下, 可以最后作为权值处理)
+    2. 以前4日平均换手率作为筛选条件
     """
     k_data = None
 
@@ -27,9 +35,11 @@ class A2Policy(Policy):
 
     def get_tick_data_at_0925(self, context, code):
         df = context.get_tick_data(code)
-        tick_data_0925 = df.iloc[-1]
-        # print(tick_data_0925['time'])
-        return tick_data_0925
+        if df is not None:
+            tick_data_0925 = df.iloc[-1]
+            # print(tick_data_0925['time'])
+            return tick_data_0925
+        return None
 
 
     def eval_stock_code(self, context, code):
@@ -39,16 +49,23 @@ class A2Policy(Policy):
 
         # Get some day tick-data at 9:25, 
         tick_data_0925 = self.get_tick_data_at_0925(context, code)
+        if tick_data_0925 is None:
+            return None
         volume_ratio = tick_data_0925['volume'] / volume_sum5d.values[0] / 5 * 60 * 4 * 5
         print('Volume-Ratio is', volume_ratio)
+
+        # TODO: Set a Threshold for Volume-Ratio, if less than the Threshold, give up this code.
         # TODO: Perform the policy to calc 'volume_ratio'
 
 
     def pick_stock_codes(self, context):
         code_results = []
-        codes = context.get_codes()
+        stock_data = StockData()
+        codes = stock_data.get_codes(sme=True)
         for code in codes:
             code_result = self.eval_stock_code(context, code)
+            if code_result is not None:
+                continue
             code_results.append(code_result)
 
         #exit()
