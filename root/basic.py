@@ -32,4 +32,3 @@ def p_change(close_or_trade, last_close):
     """
     return 100 * (close_or_trade - last_close) / last_close
 
-

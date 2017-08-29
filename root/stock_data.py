@@ -54,7 +54,7 @@ class StockData:
             return None
 
     def get_k_data_from_db(self, code, db):
-        sql = "select date, open, close, high, low, volume from sk_stock_daily_data where code='%s' and status=1;" % code
+        sql = "select date, open, close, high, low, volume, turnover from sk_stock_daily_data where code='%s' and status=1;" % code
         with db.cursor(cursorclass=MySQLdb.cursors.DictCursor) as cursor:
             r = cursor.execute(sql)
             if r == 0:
@@ -62,13 +62,28 @@ class StockData:
             dataset = cursor.fetchall()
 
         dates = [d['date'] for d in dataset]
-        df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume'], index=dates)
+        df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume', 'turnover'], index=dates)
         return df
 
     def set_k_data_to_file(self, code, k_data):
         k_data_file = os.path.join(self.k_path, code)
         pandas.to_pickle(k_data, k_data_file)
 
+    @staticmethod
+    def convert_k_data(df):
+        """
+        Convert k_data into DataFrame obj with date index
+        """
+        d = {
+            'open':     df['open'].values,
+            'close':    df['close'].values, 
+            'high':     df['high'].values, 
+            'low':      df['low'].values, 
+            'volume':   df['volume'].values 
+            }
+        k_data = pd.DataFrame(d, index=df['date'].values, columns=['open', 'close', 'high', 'low', 'volume'])
+        return k_data
+        
     def get_k_data(self, code):
         """
         Try load data from file cache first,
@@ -88,19 +103,15 @@ class StockData:
             return k_data
         
         k_data = ts.get_k_data(code)
-        if k_data is not None:
-            d = { 
-                'open': k_data['open'].values, 
-                'close': k_data['close'].values, 
-                'high': k_data['high'].values, 
-                'low': k_data['low'].values, 
-                'volume': k_data['volume'].values 
-                }
-            k_data = pd.DataFrame(d, index=k_data['date'].values, columns=['open', 'close', 'high', 'low', 'volume'])
-            self.set_k_data_to_file(code, k_data)
-            return k_data
+        if k_data is None or k_data.empty:
+            return None
 
-        return None
+        k_data = StockData.convert_k_data(k_data)
+        hist_data = ts.get_hist_data(code)
+        k_data['turnover'] = hist_data['turnover']
+        self.set_k_data_to_file(code, k_data)
+        return k_data
+
 
     ########################################################
     def get_tick_data(self, code, date):

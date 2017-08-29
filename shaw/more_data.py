@@ -20,17 +20,12 @@ from root import *
 from datetime import datetime, date
 from datetime import timedelta
 import time
+import numpy as np
 import pandas as pd
 
 
-def get_all_codes():
-    stock_data = StockData()    
-    return stock_data.get_codes()
-
-#
 def get_daily_data(db, code):
-    """
-    """
+    # Get daily data from tushare.get_k_data for open..., tushare.get_hist_data for turnover
     from_date = '2014-10-01'
     yesterday = str(datetime.today().date() + timedelta(days=-1))
 
@@ -50,28 +45,11 @@ def get_daily_data(db, code):
 
     df1 = ts.get_hist_data(code, start=from_date, end=yesterday)
     # Rebuild
-    d = {
-        'open': df['open'].values, 
-        'close': df['close'].values, 
-        'high': df['high'].values, 
-        'low': df['low'].values, 
-        'volume': df['volume'].values 
-        }
-    df0 = pd.DataFrame(d, columns=['open', 'close', 'high', 'low', 'volume'], index=df.date)    
+
+    df0 = StockData.convert_k_data(df)
     df0['turnover'] = df1['turnover']
 
     return df0
-
-def get_daily_data_ex(db, code):
-    """
-    """
-    from_date = '2014-10-01'
-    yesterday = str(datetime.today().date() + timedelta(days=-1))
-
-    print(db, code)
-    df = ts.get_hist_data(code)
-    return df
-
 
 #
 def insert_code_data(db, code, df):
@@ -201,8 +179,7 @@ def update_code_data(db, code, df):
 
 # Update data
 def fetch_and_update_code_data(db, code):
-    df = get_daily_data_ex(db, code)
-    print(code)
+    df = ts.get_hist_data(code)
     if df is not None and not df.empty:
         update_code_data(db, code, df)
 
@@ -218,6 +195,9 @@ def bank_data():
     pass
 
 def update_codes_name_to_db(db, df):
+    """
+    更新code name
+    """
     l = len(df.index)
     i = 0
     cursor = db.cursor()
@@ -241,9 +221,10 @@ def update_codes_name_to_db(db, df):
             cursor.execute(sql)
 
     db.commit()
+    cursor.close()
+
 
 def update_codes_to_db(db, df):
-    import numpy as np
     cursor = db.cursor()
     for v in df.values:
         industry = '' if pd.isnull(v[1]) else v[2]
@@ -257,6 +238,7 @@ def update_codes_to_db(db, df):
         # print(sql)
         cursor.execute(sql)
     db.commit()
+    cursor.close()
 
 
 def update_codes(db):
@@ -331,7 +313,7 @@ def load_dataframe(db, code, filename=None):
     if filename:
         pd.to_pickle(df, filename)
 
-    print(df)
+    print(df)   # print!
     print('use', time.time() - begin_time, 'seconds')
     return df
 
