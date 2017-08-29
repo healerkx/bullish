@@ -184,10 +184,15 @@ def fetch_and_update_code_data(db, code):
         update_code_data(db, code, df)
 
 
-def update_data(db):
+def update_data(db, code=None):
     # update all the codes about ma(x), v_ma(x), turnover...
-    stock_data = StockData()
-    for code in stock_data.get_codes():
+    codes = []
+    if not code:
+        stock_data = StockData()
+        codes = stock_data.get_codes()
+    else:
+        codes.append(code)
+    for code in codes:
         res = fetch_and_update_code_data(db, code)
        
 
@@ -330,7 +335,8 @@ def main(argv):
     elif argv[0] == 'insert':
         insert_data(db)
     elif argv[0] == 'update-values':
-        update_data(db)        
+        code = argv[1] if len(argv) > 1 else None
+        update_data(db, code)        
     elif argv[0] == 'update-codes':
         update_codes(db)        
     elif argv[0] == 'query':

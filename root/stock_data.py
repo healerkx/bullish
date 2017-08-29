@@ -82,7 +82,7 @@ class StockData:
             'volume':   df['volume'].values 
             }
         k_data = pd.DataFrame(d, index=df['date'].values, columns=['open', 'close', 'high', 'low', 'volume'])
-        return k_data
+        return k_data 
         
     def get_k_data(self, code):
         """
