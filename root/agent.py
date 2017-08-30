@@ -65,9 +65,6 @@ class Agent:
         self.capital += count * price
         self.print_capital(code, price)
 
-    def setup(self, context):
-        for policy in self.policy_list:
-            policy.setup(context)
     
     def handle(self, code, context):
         """
@@ -77,10 +74,10 @@ class Agent:
         pr = PolicyResult()
         
         for policy in self.policy_list:
-            print(context.get_time())
             result = policy.handle(code, context)
             continue
             
+            # TODO: dict[code, date] = policy + number + object
             if sum(result) > 0:
                 print(result)
 

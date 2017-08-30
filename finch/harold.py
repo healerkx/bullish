@@ -7,6 +7,12 @@ sys.path.append(project_path)
 from root import *
 
 
+def is_bad_code(code):
+    """
+    个别股票被长期排除在外
+    """
+    return False
+
 def run_for_code(code, agent, config):
     tm = TimeMachine()
     tm.set_code(code)
@@ -26,6 +32,8 @@ def run_for_all_codes(config):
         agent.add_policy(policy['name'])
 
     for code in stock_data.get_codes():
+        if is_bad_code(code):
+            continue
         run_for_code(code, agent, config)
 
 
@@ -35,5 +43,37 @@ def main(argv):
         config = toml.load(f)
         run_for_all_codes(config)
 
+
 if __name__ == '__main__':
+    """
+    for code in all codes: # 所有股票codes  
+        for date in dates: # 历史数据回归时间区域
+            
+            # 考虑基础的策略, 可能直接过滤（以后考虑放到Policy里面）
+            continue if is_bad_code(*code*) 
+            
+            for policy in agent.policies:
+                
+                policy.handle() -> [policy result]
+
+
+
+            #---------------------
+
+            
+            # End of this [date]
+
+
+        #---------------------
+
+        
+        # End of this [code]
+
+
+    # End of this Program        
+
+                
+    """
     main(sys.argv[1:])
+
+

@@ -62,6 +62,7 @@ class StockData:
             dataset = cursor.fetchall()
 
         dates = [d['date'] for d in dataset]
+
         df = pd.DataFrame(list(dataset), columns=['open', 'close', 'high', 'low', 'volume', 'turnover'], index=dates)
         return df
 
@@ -76,10 +77,10 @@ class StockData:
         """
         d = {
             'open':     df['open'].values,
-            'close':    df['close'].values, 
-            'high':     df['high'].values, 
-            'low':      df['low'].values, 
-            'volume':   df['volume'].values 
+            'close':    df['close'].values,
+            'high':     df['high'].values,
+            'low':      df['low'].values,
+            'volume':   df['volume'].values
             }
         k_data = pd.DataFrame(d, index=df['date'].values, columns=['open', 'close', 'high', 'low', 'volume'])
         return k_data 

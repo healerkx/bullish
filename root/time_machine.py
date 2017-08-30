@@ -36,7 +36,6 @@ class TimeMachine:
         context = Context(self)
         context.set_codes(self.agent.get_concerned_codes())
 
-        self.agent.setup(context)
 
         while current_time <= end_time:
             # self.date_changed(begin_time, current_time)

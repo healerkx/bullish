@@ -1,19 +1,15 @@
 
+import pandas as pd
 
+dates = ['2017-08-01', '2017-08-02', '2017-08-03', '2017-08-04']
 
+d = {
+    'a': [1, 2, 3, 4],
+    'b': [11, 12, 13, 14],
+    'c': ['a', 'b', 'c', 'd']
+}
 
-class A:
-    def f(self, a):
-        print(a)
+df = pd.DataFrame(d, index=dates, columns=['a', 'b', 'c'])
 
-def cached(f):
-    def w(r):
-        f(r * r)
-    return w
-
-a = A()
-a.f(5)
-
-a.f = cached(a.f)
-
-a.f(6)
+v = df.get_value('2017-08-02', 'a')
+print(v)

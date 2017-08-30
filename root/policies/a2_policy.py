@@ -29,18 +29,17 @@ class A2Policy(Policy):
     k_data = None
 
 
-    def get_recent_days_data(self, context, code):
+    def get_recent_days_data(self, code, context):
         """
         'Days' means workday!
         """
         k_data = self.prepare_code_data(code)
         date = datetime.fromtimestamp(context.get_time()).date()
-        print(context.get_time(), date)
         the_k_data = k_data.loc[k_data.index == date]
-
+        
         return the_k_data
 
-    def get_tick_data_at_0925(self, context, code):
+    def get_tick_data_at_0925(self, code, context):
         '''
         通过ts.get_tick_data()获取每天09:25的price的方式消耗太大
         1. 3000+股票 * N年交易日 次获取API，200w次的HTTP调用 + File Cache
@@ -63,17 +62,21 @@ class A2Policy(Policy):
         std = np.std(na)
         avg = np.average(na)
         return std / avg
-        
 
-    def eval_stock_code(self, context, code):
+
+    def run_for_code(self, code, context):
         # 1. code 已经是满足 sme=1 的筛选
-        k_data = self.get_recent_days_data(context, code)
-        
+        k_data = self.get_recent_days_data(code, context)
+        if k_data is None or k_data.empty:
+            print('没有数据, 不考虑')
+            return None
+
         # 2. 换手率连续多日在3%以下...
         turnover_avg = k_data['turnover_avg']
         if turnover_avg is None or turnover_avg.empty:
-            print('没有数据, 暂不考虑')
+            print('没有换手率, 不考虑')
             return None
+
         if turnover_avg.values[0] > 3.0:
             print("turnover avg > 3.0")
             return None
@@ -94,7 +97,7 @@ class A2Policy(Policy):
             return None
 
         # Get some day tick-data at 9:25, (只有涉及到量比的时候才去取数据)
-        tick_data_0925 = self.get_tick_data_at_0925(context, code)
+        tick_data_0925 = self.get_tick_data_at_0925(code, context)
         if tick_data_0925 is None:
             return None
 
@@ -105,20 +108,11 @@ class A2Policy(Policy):
         return (True, volume_ratio)
 
 
-    def run_for_code(self, code, context):
-        code_results = []
-
-        code_result = self.eval_stock_code(context, code)
-        #TODO: code result!
-        return code_result
-        
-
     def prepare_code_data(self, code):
-        # TODO: 让优化的工作隐藏到context和 stock_data obj 层去, Policy尽量做到对未来数据不可见
         if self.k_data is not None:
             return self.k_data
         
-        print("Prepare data for", code)
+        print("Loading data for", code)
         stock_data = StockData()
         k_data = stock_data.get_k_data(code)
 
@@ -142,16 +136,11 @@ class A2Policy(Policy):
         self.k_data = k_data
         return k_data
     
-    def setup(self, context):
-        """
-        Setup some context
-        """
-        pass
 
     def handle(self, code, context):
         """
         """
         result = self.run_for_code(code, context)
-
+        print(result)
         return result
 
