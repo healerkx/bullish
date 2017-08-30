@@ -11,8 +11,6 @@ def usage():
 Commands:
 policy
     show all the policies
-travel
-    Makes an agent travelling in a time machine
     """
 
 #
@@ -30,5 +28,3 @@ if __name__ == '__main__':
     
     if argv[0] == 'policy':
         show_police_list(argv)
-    elif argv[0] == 'travel':
-        travel(argv)

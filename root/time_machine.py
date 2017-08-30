@@ -9,9 +9,13 @@ class TimeMachine:
     """
     def __init__(self):
         self.agent = None
+        self.code = None
 
     def set_agent(self, agent):
         self.agent = agent
+
+    def set_code(self, code):
+        self.code = code
 
     def on_date(self, context, begin_time, current_time):
         begin = formatted_date(begin_time)
@@ -19,7 +23,7 @@ class TimeMachine:
         print('[%s]' % end)
 
         context.set_time(current_time)
-        policy_result = self.agent.handle(context)
+        policy_result = self.agent.handle(self.code, context)
 
         #TODO: yield policy result
         

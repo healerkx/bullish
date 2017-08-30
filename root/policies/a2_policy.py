@@ -26,7 +26,7 @@ class A2Policy(Policy):
     3. 
     """
 
-    k_data_dict = dict()
+    k_data = None
 
 
     def get_recent_days_data(self, context, code):
@@ -104,26 +104,21 @@ class A2Policy(Policy):
 
         return (True, volume_ratio)
 
-        
-    def pick_stock_codes(self, context):
-        code_results = []
-        stock_data = StockData()
-        codes = stock_data.get_codes(sme=True)
-        for code in codes:
-            code_result = self.eval_stock_code(context, code)
-            if code_result is not None:
-                continue
-            code_results.append(code_result)
 
-        return None
+    def run_for_code(self, code, context):
+        code_results = []
+
+        code_result = self.eval_stock_code(context, code)
+        #TODO: code result!
+        return code_result
         
 
     def prepare_code_data(self, code):
         # TODO: 让优化的工作隐藏到context和 stock_data obj 层去, Policy尽量做到对未来数据不可见
-        if code in self.k_data_dict:
-            return self.k_data_dict[code]
+        if self.k_data is not None:
+            return self.k_data
         
-        print("Prepare", code)
+        print("Prepare data for", code)
         stock_data = StockData()
         k_data = stock_data.get_k_data(code)
 
@@ -144,7 +139,7 @@ class A2Policy(Policy):
         k_data['turnover_avg'] = (k_data1['turnover'] + k_data2['turnover'] + k_data3['turnover'] + k_data4['turnover']) / 4
         k_data['last_close'] = k_data1['close']
         
-        self.k_data_dict[code] = k_data
+        self.k_data = k_data
         return k_data
     
     def setup(self, context):
@@ -153,13 +148,10 @@ class A2Policy(Policy):
         """
         pass
 
-    def handle(self, context):
+    def handle(self, code, context):
         """
         """
-        print("#" * 30) # Next day
-        print("#" * 30)
-        print("#" * 30)
-        result = self.pick_stock_codes(context)
+        result = self.run_for_code(code, context)
 
         return result
 

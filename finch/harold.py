@@ -9,6 +9,7 @@ from root import *
 
 def run_for_code(code, agent, config):
     tm = TimeMachine()
+    tm.set_code(code)
     tm.set_agent(agent)
     begin = config['config']['date_begin']
     end = config['config']['date_end']

@@ -69,16 +69,16 @@ class Agent:
         for policy in self.policy_list:
             policy.setup(context)
     
-    def handle(self, context):
+    def handle(self, code, context):
         """
-        An agent can compose multi policies for a DataFrame
+        An agent can compose multi policies for a code's DataFrame object
         """
         # context.set_codes(self.get_concerned_codes())
         pr = PolicyResult()
         
         for policy in self.policy_list:
             print(context.get_time())
-            result = policy.handle(context)
+            result = policy.handle(code, context)
             continue
             
             if sum(result) > 0:
