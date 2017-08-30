@@ -31,6 +31,11 @@ class Policy:
         return Policy.policy_map[policy_name]
 
 
+
+class PolicyResult:
+    def __init__(self):
+        pass
+
 #
 class Seek3BlackCrowsPolicy(Policy):
     """

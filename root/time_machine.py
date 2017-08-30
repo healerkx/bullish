@@ -16,15 +16,17 @@ class TimeMachine:
     def on_date(self, context, begin_time, current_time):
         begin = formatted_date(begin_time)
         end = formatted_date(current_time)
+        print('[%s]' % end)
 
         context.set_time(current_time)
-        self.agent.handle(context)
+        policy_result = self.agent.handle(context)
+
+        #TODO: yield policy result
         
     def start(self, begin, end):
         begin_time = unix_time(begin)
         end_time = unix_time(end)
-        print(begin, end)
-
+        
         day_seconds = 3600 * 24
         current_time = begin_time
         context = Context(self)

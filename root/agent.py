@@ -74,8 +74,10 @@ class Agent:
         An agent can compose multi policies for a DataFrame
         """
         # context.set_codes(self.get_concerned_codes())
-
+        pr = PolicyResult()
+        
         for policy in self.policy_list:
+            print(context.get_time())
             result = policy.handle(context)
             continue
             
@@ -101,23 +103,6 @@ class Agent:
                 self.highest = total
                 self.print_capital(code, close)
 
-    '''
-    def travel_at(self, context, begin_time, current_time):
-        pass
-
-    def travel(self, begin, end=None):
-        for code in self.concerned_codes:
-            begin_time = unix_time(begin)
-            end_time = unix_time(end)
-
-            day_seconds = 3600 * 24
-            current_time = begin_time
-            context = Context()
-            # context.set_code_data()
-            while current_time <= end_time:
-            
-                self.travel_at(context, begin_time, current_time)
-                current_time += day_seconds
-    '''
+        return pr
 
     
