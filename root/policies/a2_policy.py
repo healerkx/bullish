@@ -45,7 +45,7 @@ class A2Policy(Policy):
         1. 3000+股票 * N年交易日 次获取API，200w次的HTTP调用 + File Cache
         2. File Cache这些日tick data, 数量非常庞大 (约200G+)
 
-        # 通过观察, 利用历史数据, 每日0925的price, 就是每日的开盘价open
+        通过观察, 利用历史数据, 每日0925的price, 就是每日的开盘价open
         SO, 暂时不用, 真实数据的时候, 可以改成当日数据ts.get_today_ticks()!!!
         '''
         df = context.get_tick_data(code)

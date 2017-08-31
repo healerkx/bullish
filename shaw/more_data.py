@@ -24,13 +24,13 @@ import numpy as np
 import pandas as pd
 
 
-def get_daily_data(db, code):
+def get_data(db, code, table_name, ktype):
     # Get daily data from tushare.get_k_data for open..., tushare.get_hist_data for turnover
     from_date = '2014-10-01'
     yesterday = str(datetime.today().date() + timedelta(days=-1))
 
     with db.cursor() as cursor:
-        cursor.execute('select max(date) from sk_stock_daily_data where code=\'%s\'' % code)
+        cursor.execute('select max(date) from %s where code=\'%s\'' % (table_name, code))
         result = cursor.fetchall()
         max_date = result[0][0]
         
@@ -39,23 +39,28 @@ def get_daily_data(db, code):
                 return None
             from_date = str(max_date + timedelta(days=1))
     
-    df = ts.get_k_data(code, start=from_date, end=yesterday)
+    df = ts.get_k_data(code, start=from_date, end=yesterday, ktype=ktype)
     if from_date == yesterday and df.empty:
         print(code, 'suspension?')
 
-    df1 = ts.get_hist_data(code, start=from_date, end=yesterday)
-    # Rebuild
-
+    df1 = ts.get_hist_data(code, start=from_date, end=yesterday, ktype=ktype)
+    
     df0 = StockData.convert_k_data(df)
     df0['turnover'] = df1['turnover']
 
     return df0
 
+def get_daily_data(db, code):
+    return get_data(db, code, 'sk_stock_daily_data', 'D')
+
+def get_weekly_data(db, code):
+    return get_data(db, code, 'sk_stock_weekly_data', 'W')
+
 #
-def insert_code_data(db, code, df):
+def insert_code_data(db, code, df, table_name='sk_stock_daily_data'):
     """
     DF struct: [open, close, high, low, volume, turnover]
-    insert into sk_stock_daily_data 
+    insert into [sk_stock_daily_data|sk_stock_weekly_data] 
     (open,  close, high,  low,   volume,    turnover, date,        code,    status, create_time, update_time) values 
     ('4.9', '4.98','4.98','4.87','91300.0', '1.75',   '2017-08-24','000010',1,1503974955,1503974955),
     ('4.97','5.0', '5.03','4.9', '127823.0','2.45',   '2017-08-25','000010',1,1503974955,1503974955),
@@ -83,7 +88,7 @@ def insert_code_data(db, code, df):
 
         i += 1
         
-    sql = "insert into sk_stock_daily_data (open, close, high, low, volume, turnover, date, code, status, create_time, update_time) values " + ','.join(lists) + ";\n\n"
+    sql = ("insert into %s (open, close, high, low, volume, turnover, date, code, status, create_time, update_time) values " % table_name) + ','.join(lists) + ";"
     print(sql)
     # exit()
     with db.cursor() as cursor:
@@ -97,8 +102,12 @@ def handle_code_data(db, code):
     df = get_daily_data(db, code)
     if df is None or df.empty:
         return False
-    return insert_code_data(db, code, df)
+    insert_code_data(db, code, df, 'sk_stock_daily_data')
 
+    wf = get_weekly_data(db, code)
+    if wf is None or wf.empty:
+        return False
+    insert_code_data(db, code, wf, 'sk_stock_weekly_data')
 
 def query_data_info(db):
     """
