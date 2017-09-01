@@ -28,7 +28,7 @@ def get_data(db, code, table_name, ktype):
     # Get daily data from tushare.get_k_data for open..., tushare.get_hist_data for turnover
     from_date = '2014-10-01'
     yesterday = str(datetime.today().date() + timedelta(days=-1))
-
+    
     with db.cursor() as cursor:
         cursor.execute('select max(date) from %s where code=\'%s\'' % (table_name, code))
         result = cursor.fetchall()
@@ -42,7 +42,7 @@ def get_data(db, code, table_name, ktype):
     df = ts.get_k_data(code, start=from_date, end=yesterday, ktype=ktype)
     if from_date == yesterday and df.empty:
         print(code, 'suspension?')
-
+    
     df1 = ts.get_hist_data(code, start=from_date, end=yesterday, ktype=ktype)
     
     df0 = StockData.convert_k_data(df)
@@ -84,15 +84,26 @@ def insert_code_data(db, code, df, table_name='sk_stock_daily_data'):
         v.append(ctime)
         v.append(ctime)
         s = ",".join(v)
+
+        if 'nan' in s:  # SEE [BUG 1]
+            i += 1
+            continue
+
         lists.append("(" + s + ")")
 
         i += 1
         
     sql = ("insert into %s (open, close, high, low, volume, turnover, date, code, status, create_time, update_time) values " % table_name) + ','.join(lists) + ";"
-    print(sql)
+    print(code)
     # exit()
     with db.cursor() as cursor:
-        r = cursor.execute(sql)
+        try:
+            r = cursor.execute(sql)
+        except:
+            #[BUG 1]
+            # 此处BUG: get_k_data, get_hist_data, 同样的end time, 返回的最后一天可能有不同,
+            # 往往是get_hist_data拿到的数据少, 导致turnover is NaN
+            pass
         db.commit()
     return True
 
@@ -100,14 +111,13 @@ def insert_code_data(db, code, df, table_name='sk_stock_daily_data'):
 #
 def handle_code_data(db, code):
     df = get_daily_data(db, code)
-    if df is None or df.empty:
-        return False
-    insert_code_data(db, code, df, 'sk_stock_daily_data')
+    if df is not None and not df.empty:
+        insert_code_data(db, code, df, 'sk_stock_daily_data')
 
     wf = get_weekly_data(db, code)
-    if wf is None or wf.empty:
-        return False
-    insert_code_data(db, code, wf, 'sk_stock_weekly_data')
+    if wf is not None and not wf.empty:
+        insert_code_data(db, code, wf, 'sk_stock_weekly_data')
+    
 
 def query_data_info(db):
     """
@@ -148,6 +158,8 @@ def query_data_detail(db):
 
 def insert_data(db):
     stock_data = StockData()
+    res = handle_code_data(db, '000679')
+    exit()
     for code in stock_data.get_codes():
         res = handle_code_data(db, code)
 

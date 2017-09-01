@@ -15,6 +15,8 @@ def is_bad_code(code):
 
 
 def run_for_code(code, agent, config):
+    '''
+    '''
     tm = TimeMachine()
     tm.set_code(code)
     tm.set_agent(agent)
@@ -25,6 +27,8 @@ def run_for_code(code, agent, config):
 
 
 def run_for_all_codes(config):
+    '''
+    '''
     stock_data = StockData()
     agent = Agent(config)
 
@@ -49,24 +53,21 @@ def main(argv):
 
 if __name__ == '__main__':
     """
-    for code in all codes: # 所有股票codes  
+    for code in all codes: # 所有股票codes
+        #code -> LOG
         for date in dates: # 历史数据回归时间区域
-            
+            [date] -> LOG
+
             # 考虑基础的策略, 可能直接过滤（以后考虑放到Policy里面）
             continue if is_bad_code(*code*) 
             
-            for policy in agent.policies:
-                
-                policy.handle() -> [policy result]
-
-
+            for policy in agent.policies:    
+                policy.handle() -> [policy result] -> LOG
 
             #---------------------
 
             
             # End of this [date]
-
-
         #---------------------
 
         
