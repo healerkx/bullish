@@ -1,16 +1,25 @@
 
 from .policies import *
-
+import sys
 
 class Agent:
 
-    def __init__(self):
+    def __init__(self, config):
         self.policy_list = []
         self.capital = 10000
         self.repo = dict()
         self.last_diff = 0
         self.highest = 0
         self.concerned_codes = []
+        self.config = config
+        
+        self.file = sys.stdout
+        if 'log' in self.config:
+            log_path = self.config['log']['path']
+            log_name = self.config['__file__'] + '.log'
+            log_file = os.path.join(log_path, log_name)
+            self.file = open(log_file, mode='w', encoding='utf8')
+
 
     def add_concerned_code(self, code):
         self.concerned_codes.append(code)
@@ -61,45 +70,30 @@ class Agent:
         count = exist if count is None else count
         self.repo[code] = exist - count
         print("SEL:", code, count, price, count * price)
-        
+
         self.capital += count * price
         self.print_capital(code, price)
 
-    
+
+    def log(self, content):
+        self.file.write(content + "\n")
+
+    def set_result(self, code, date, policy_name, result):
+        """
+        Dump result into file in format "#{PolicyName}: #{PolicyResult}"
+        """
+        self.log("%s: %s" % (policy_name, result))
+
+
     def handle(self, code, context):
         """
         An agent can compose multi policies for a code's DataFrame object
         """
         # context.set_codes(self.get_concerned_codes())
-        pr = PolicyResult()
-        
+        date = str(datetime.fromtimestamp(context.get_time()).date())
         for policy in self.policy_list:
             result = policy.handle(code, context)
-            continue
-            
-            # TODO: dict[code, date] = policy + number + object
-            if sum(result) > 0:
-                print(result)
 
-            continue
+            self.set_result(code, date, policy.policy_name, result)
 
-            diff, close = result
-            if self.last_diff * diff < 0:
-                if diff > 0:
-                    print(date, end=' ')
-                    self.buy(code, close)
-                elif diff < 0:
-                    print(date, end=' ')
-                    self.sell(code, close)
 
-            self.last_diff = diff
-
-            total = self.get_total(code, close)
-            if total > self.highest:
-                print('HIGH!', date)
-                self.highest = total
-                self.print_capital(code, close)
-
-        return pr
-
-    

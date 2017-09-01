@@ -12,6 +12,8 @@ class Policy:
     """
     policy_map = dict()
 
+    policy_name = ''
+
     def handle(self, context):
         """
         @param context
@@ -21,6 +23,7 @@ class Policy:
     @staticmethod
     def register(policy_name):
         def handler(clz):
+            clz.policy_name = policy_name
             Policy.policy_map[policy_name] = clz
             return clz
 

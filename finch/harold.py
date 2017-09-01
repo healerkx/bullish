@@ -25,7 +25,7 @@ def run_for_code(code, agent, config):
 
 def run_for_all_codes(config):
     stock_data = StockData()
-    agent = Agent()
+    agent = Agent(config)
 
     for policy_name in config['policy']:
         policy = config['policy'][policy_name]
@@ -38,9 +38,11 @@ def run_for_all_codes(config):
 
 
 def main(argv):
+    filename = argv[0]
     file = os.path.join(os.path.dirname(__file__), 'conf', argv[0])
     with open(file) as f:
         config = toml.load(f)
+        config['__file__'] = os.path.basename(filename)
         run_for_all_codes(config)
 
 
@@ -70,9 +72,7 @@ if __name__ == '__main__':
         # End of this [code]
 
 
-    # End of this Program        
-
-                
+    # End of this Program
     """
     main(sys.argv[1:])
 

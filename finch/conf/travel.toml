@@ -9,3 +9,6 @@ travel_type = "watch"
 name="A2"
 weight=10
 
+
+[log2]
+path="/Users/healer/Projects/fregata.d/results"

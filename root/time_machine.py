@@ -23,9 +23,9 @@ class TimeMachine:
         print('[%s]' % end)
 
         context.set_time(current_time)
+        self.agent.log("[%s]" % end)
         policy_result = self.agent.handle(self.code, context)
 
-        #TODO: yield policy result
         
     def start(self, begin, end):
         begin_time = unix_time(begin)
@@ -36,6 +36,7 @@ class TimeMachine:
         context = Context(self)
         context.set_codes(self.agent.get_concerned_codes())
 
+        self.agent.log("#%s" % self.code)
 
         while current_time <= end_time:
             # self.date_changed(begin_time, current_time)
