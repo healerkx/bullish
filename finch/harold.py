@@ -13,6 +13,7 @@ def is_bad_code(code):
     """
     return False
 
+
 def run_for_code(code, agent, config):
     tm = TimeMachine()
     tm.set_code(code)
@@ -39,9 +40,9 @@ def run_for_all_codes(config):
 
 def main(argv):
     filename = argv[0]
-    file = os.path.join(os.path.dirname(__file__), 'conf', argv[0])
-    with open(file) as f:
-        config = toml.load(f)
+    filepath = os.path.join(os.path.dirname(__file__), 'conf', argv[0])
+    with open(filepath) as file:
+        config = toml.load(file)
         config['__file__'] = os.path.basename(filename)
         run_for_all_codes(config)
 

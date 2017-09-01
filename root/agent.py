@@ -2,7 +2,12 @@
 from .policies import *
 import sys
 
+
 class Agent:
+    """
+    An agent perform as global entity traveling in time machine,
+    using several policies, buying, selling or watching some stock.
+    """
 
     def __init__(self, config):
         self.policy_list = []
@@ -20,7 +25,7 @@ class Agent:
             log_file = os.path.join(log_path, log_name)
             self.file = open(log_file, mode='w', encoding='utf8')
 
-
+    #
     def add_concerned_code(self, code):
         self.concerned_codes.append(code)
 
@@ -74,7 +79,7 @@ class Agent:
         self.capital += count * price
         self.print_capital(code, price)
 
-
+    #
     def log(self, content):
         self.file.write(content + "\n")
 
@@ -84,7 +89,7 @@ class Agent:
         """
         self.log("%s: %s" % (policy_name, result))
 
-
+    #
     def handle(self, code, context):
         """
         An agent can compose multi policies for a code's DataFrame object

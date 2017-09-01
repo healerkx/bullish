@@ -41,12 +41,12 @@ exit()
 codes = ["600149", "600165", "600166", "600167", "600168", "600265", "600295", "600286", "600297", "600298"]
 codes = codes[:1]
 for code in codes:
-    ag = Agent()
+    ag = Agent(None)
     ag.add_policy("C1")
     ag.add_concerned_code(code)
 
     tm = TimeMachine()
-    tm.add_agent(ag)
+    tm.set_agent(ag)
     
     tm.start('2017-08-15', '2017-08-15')
 
