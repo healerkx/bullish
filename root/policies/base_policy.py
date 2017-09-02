@@ -14,11 +14,15 @@ class Policy:
 
     policy_name = ''
 
-    def handle(self, context):
+    def handle(self, code, context):
         """
+        @param code
         @param context
         """
         pass
+
+    def do_handle(self, code, context):
+        return self.handle(code, context)
 
     @staticmethod
     def register(policy_name):

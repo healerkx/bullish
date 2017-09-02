@@ -97,7 +97,7 @@ class Agent:
         # context.set_codes(self.get_concerned_codes())
         date = str(datetime.fromtimestamp(context.get_time()).date())
         for policy in self.policy_list:
-            result = policy.handle(code, context)
+            result = policy.do_handle(code, context)
 
             self.set_result(code, date, policy.policy_name, result)
 
