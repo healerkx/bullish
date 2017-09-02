@@ -174,9 +174,6 @@ class StockData:
             return list(map(lambda x: x[0], codes))
         return []
         
-
-
-
     ########################################################
     # Profile!
     def get_local_profile_data(self, date):
@@ -219,3 +216,12 @@ class StockData:
     def get_stock_basics(self, date):
         return ts.get_stock_basics()
 
+
+    def get_open_dates(self):
+        sql = "select distinct(date) date from sk_stock_daily_data where date > '2011-01-01' order by date;"
+        with self.db.cursor() as cursor:
+            r = cursor.execute(sql)
+            if r > 0:
+                dates = cursor.fetchall()
+                return list(map(lambda x: str(x[0]), dates))
+        return []
