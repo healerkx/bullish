@@ -26,8 +26,9 @@ class TimeMachine:
         self.agent.log("[%s]" % end)
         policy_result = self.agent.handle(self.code, context)
 
-        
-    def start(self, begin, end):
+    def start_daily(self, begin, end):
+        '''
+        '''
         begin_time = unix_time(begin)
         end_time = unix_time(end)
         
@@ -42,3 +43,25 @@ class TimeMachine:
             # self.date_changed(begin_time, current_time)
             self.on_date(context, begin_time, current_time)
             current_time += day_seconds
+
+    def start_fulltime(self, begin, end):
+        '''
+        '''
+        begin_time = unix_time(begin)
+        end_time = unix_time(end)
+        
+        context = Context(self)
+        context.set_codes(self.agent.get_concerned_codes())
+
+        self.agent.log("#%s" % self.code)
+        self.on_date(context, begin_time, end_time)            
+        
+    # Entry for TimeMachine
+    def start(self, begin, end, **options):
+        if 'mode' in options:
+            if options['mode'] == 'daily':
+                self.start_daily(begin, end)
+            if options['mode'] == 'fulltime':
+                self.start_fulltime(begin, end)
+        else:
+            self.start_daily(begin, end)

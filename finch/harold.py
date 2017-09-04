@@ -23,7 +23,9 @@ def run_for_code(code, agent, config):
     begin = config['config']['date_begin']
     end = config['config']['date_end']
     print('On code =', code)
-    tm.start(begin, end)
+    # daily is for default TimeMachine option
+    mode = config['config']['mode'] if 'mode' in config['config'] else 'daily'
+    tm.start(begin, end, mode='daily')
 
 
 def run_for_all_codes(config):

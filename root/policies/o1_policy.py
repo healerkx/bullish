@@ -6,16 +6,13 @@ import time
 from ..stock_data import *
 import numpy as np
 
-# A2和A1的计算结果进行过对比, 数据吻合
-# A1和A2最大的实现障碍是有个量比排名，
-# 这个属于和其他股票进行横向对比，
-# 然而数据结构对单只股票的纵向时间计算比较友好。
-# 所以尽量把排序安排到最后。
 
 @Policy.register('O1')
 class O1Policy(Policy):
     """
-    用于下载daily ticks data into pickle files 
+    用于下载daily ticks data into pickle files
+    # 得做一下限制, 否则100G都不够AB股的一年的数据
+    # 某code, 在某30天内的所有数据即可(用完可以考虑删除)
     """
 
     stock_data = StockData()
