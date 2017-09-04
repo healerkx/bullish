@@ -4,8 +4,8 @@ from ..basic import *
 
 PolicyLifetime_Unknown      = 0
 PolicyLifetime_Global       = 1
-PolicyLifetime_EveryCode    = 2
-PolicyLifetime_EveryDate    = 3
+PolicyLifetime_EachCode     = 2
+PolicyLifetime_AlwaysNew    = 3
 
 class Policy:
     """

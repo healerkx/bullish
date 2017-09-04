@@ -101,14 +101,14 @@ class Agent:
         for policy_clz in self.policy_clz_list:
             if policy_clz.pplicy_lifetime == PolicyLifetime_Global:
                 policy = policy_clz.get_singleton()
-            elif policy_clz.pplicy_lifetime == PolicyLifetime_EveryCode:
+            elif policy_clz.pplicy_lifetime == PolicyLifetime_EachCode:
                 policy = policy_clz.instance_by_code(code)
-            elif policy_clz.pplicy_lifetime == PolicyLifetime_EveryDate:
+            elif policy_clz.pplicy_lifetime == PolicyLifetime_AlwaysNew:
                 policy = policy_clz()
             elif policy_clz.pplicy_lifetime == PolicyLifetime_Unknown:
-                raise Exception('')
+                raise Exception('A policy MUST set a valid Policy Lifetime')
             else:
-                raise Exception('')
+                raise Exception('A policy MUST set a valid Policy Lifetime')
 
             result = policy.do_handle(code, context)
 

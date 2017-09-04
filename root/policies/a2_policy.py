@@ -28,10 +28,7 @@ class A2Policy(Policy):
 
     k_data = None
 
-    pplicy_lifetime = PolicyLifetime_Global
-
-    def __init__(self):
-        print("#" * 100)
+    pplicy_lifetime = PolicyLifetime_EachCode
 
 
     def get_recent_days_data(self, code, context):
