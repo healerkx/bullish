@@ -31,7 +31,7 @@ class O1Policy(Policy):
         
         if len(O1Policy.open_dates) == 0:
             O1Policy.open_dates = set(self.stock_data.get_open_dates())
-            
+
         date = formatted_date(current_time)
 
         # 从数据库里面看是否有当日的数据, 没有可能就是节假日.

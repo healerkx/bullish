@@ -26,8 +26,9 @@ class TimeMachine:
         self.agent.log("[%s]" % end)
         policy_result = self.agent.handle(self.code, context)
 
-    def start_daily(self, begin, end):
+    def start_daily(self, begin, end, skip_weekends=True):
         '''
+        on_date invoked daily, each policy consumes context data.
         '''
         begin_time = unix_time(begin)
         end_time = unix_time(end)
@@ -40,12 +41,20 @@ class TimeMachine:
         self.agent.log("#%s" % self.code)
 
         while current_time <= end_time:
-            # self.date_changed(begin_time, current_time)
+            if skip_weekends:
+                current_date = time.localtime(current_time)
+                weekday = int(time.strftime("%w", current_date))
+                if weekday == 0 or weekday == 6:
+                    current_time += day_seconds
+                    # 周六周日不开盘, 没有数据, 返回False
+                    continue
+            # 
             self.on_date(context, begin_time, current_time)
             current_time += day_seconds
 
     def start_fulltime(self, begin, end):
         '''
+        on_date invoked once, Policy executed once with full-time data.
         '''
         begin_time = unix_time(begin)
         end_time = unix_time(end)
@@ -54,14 +63,16 @@ class TimeMachine:
         context.set_codes(self.agent.get_concerned_codes())
 
         self.agent.log("#%s" % self.code)
-        self.on_date(context, begin_time, end_time)            
-        
+        self.on_date(context, begin_time, end_time) 
+
     # Entry for TimeMachine
     def start(self, begin, end, **options):
         if 'mode' in options:
             if options['mode'] == 'daily':
-                self.start_daily(begin, end)
+                skip_weekends = True  # TODO: options
+                self.start_daily(begin, end, skip_weekends)
             if options['mode'] == 'fulltime':
                 self.start_fulltime(begin, end)
         else:
             self.start_daily(begin, end)
+
