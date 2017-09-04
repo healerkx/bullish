@@ -11,6 +11,7 @@ class Agent:
 
     def __init__(self, config):
         self.policy_list = []
+        self.policy_clz_list = []
         self.capital = 10000
         self.repo = dict()
         self.last_diff = 0
@@ -34,7 +35,8 @@ class Agent:
 
     def add_policy(self, policy_name):
         policy_clz = Policy.get_policy_clz(policy_name)
-        self.policy_list.append(policy_clz())
+        # self.policy_list.append(policy_clz())
+        self.policy_clz_list.append(policy_clz)
 
     def get_repo_count(self, code):
         if code in self.repo:
@@ -96,7 +98,18 @@ class Agent:
         """
         # context.set_codes(self.get_concerned_codes())
         date = str(datetime.fromtimestamp(context.get_time()).date())
-        for policy in self.policy_list:
+        for policy_clz in self.policy_clz_list:
+            if policy_clz.pplicy_lifetime == PolicyLifetime_Global:
+                policy = policy_clz.get_singleton()
+            elif policy_clz.pplicy_lifetime == PolicyLifetime_EveryCode:
+                policy = policy_clz.instance_by_code(code)
+            elif policy_clz.pplicy_lifetime == PolicyLifetime_EveryDate:
+                policy = policy_clz()
+            elif policy_clz.pplicy_lifetime == PolicyLifetime_Unknown:
+                raise Exception('')
+            else:
+                raise Exception('')
+
             result = policy.do_handle(code, context)
 
             self.set_result(code, date, policy.policy_name, result)

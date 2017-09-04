@@ -2,6 +2,10 @@
 import talib
 from ..basic import *
 
+PolicyLifetime_Unknown      = 0
+PolicyLifetime_Global       = 1
+PolicyLifetime_EveryCode    = 2
+PolicyLifetime_EveryDate    = 3
 
 class Policy:
     """
@@ -11,6 +15,12 @@ class Policy:
     for a certain stock, and other information.
     """
     policy_map = dict()
+
+    instance = None
+
+    instance_dict = dict()
+
+    pplicy_lifetime = PolicyLifetime_Unknown
 
     policy_name = ''
 
@@ -36,6 +46,21 @@ class Policy:
     @staticmethod
     def get_policy_clz(policy_name):
         return Policy.policy_map[policy_name]
+
+    @classmethod
+    def instance_by_code(clz, code):
+        if code in clz.instance_dict:
+            return clz.instance_dict[code]
+        else:
+            instance = clz()
+            clz.instance_dict[code] = instance
+            return instance
+
+    @classmethod
+    def get_singleton(clz):
+        if clz.instance is None:
+            clz.instance = clz()
+        return clz.instance
 
 
 
