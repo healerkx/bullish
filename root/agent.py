@@ -105,6 +105,7 @@ class Agent:
                 policy = policy_clz.instance_by_code(code)
             elif policy_clz.policy_lifetime == PolicyLifetime_AlwaysNew:
                 policy = policy_clz()
+                policy.initialize(code=code, date=date)
             elif policy_clz.policy_lifetime == PolicyLifetime_Unknown:
                 raise Exception('A policy MUST set a valid Policy Lifetime')
             else:

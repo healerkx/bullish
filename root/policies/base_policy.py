@@ -4,11 +4,14 @@ from ..basic import *
 
 # 
 PolicyLifetime_Unknown      = 0
+
 # If you need a Policy single instance, set PolicyLifetime_Global.
 PolicyLifetime_Global       = 1
+
 # Most of the time, A policy instance containing data against a certain code, 
 # set this value to class member policy_lifetime.
-PolicyLifetime_EachCode     = 2  
+PolicyLifetime_EachCode     = 2
+
 # For each date or each code, create a brand new instance always.
 PolicyLifetime_AlwaysNew    = 3
 
@@ -35,6 +38,9 @@ class Policy:
 
     def do_handle(self, code, context):
         return self.handle(code, context)
+
+    def initialize(self, **args):
+        pass
 
     @staticmethod
     def register(policy_name, policy_lifetime):
@@ -68,6 +74,7 @@ class Policy:
             return clz.__instance
         else:
             instance = clz()
+            instance.initialize(code=code)
             clz.__instance = instance
             clz.__current_code = code
             return instance
@@ -75,7 +82,9 @@ class Policy:
     @classmethod
     def get_singleton(clz):
         if clz.__instance is None:
-            clz.__instance = clz()
+            instance = clz()
+            instance.initialize()
+            clz.__instance = instance
         return clz.__instance
 
 
@@ -84,7 +93,7 @@ class PolicyResult:
     def __init__(self):
         pass
 
-#
+# TODO: Remove
 class Seek3BlackCrowsPolicy(Policy):
     """
     寻找三只黑乌鸦测试

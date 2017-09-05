@@ -28,11 +28,17 @@ class A2Policy(Policy):
 
     k_data = None
 
+    def initialize(self, **args):
+        if 'code' in args:
+            self.data = self.load_data(args['code'])
+        
+
+
     def get_recent_days_data(self, code, context):
         """
         'Days' means workday!
         """
-        k_data = self.prepare_code_data(code)
+        k_data = self.load_data(code)
         date = datetime.fromtimestamp(context.get_time()).date()
         the_k_data = k_data.loc[k_data.index == date]
         
@@ -106,8 +112,7 @@ class A2Policy(Policy):
 
         return (True, volume_ratio)
 
-
-    def prepare_code_data(self, code):
+    def load_data(self, code):
         if self.k_data is not None:
             return self.k_data
         
