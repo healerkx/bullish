@@ -33,7 +33,6 @@ class A2Policy(Policy):
             self.data = self.load_data(args['code'])
         
 
-
     def get_recent_days_data(self, code, context):
         """
         'Days' means workday!
@@ -119,7 +118,6 @@ class A2Policy(Policy):
         print("Loading data for", code)
         stock_data = StockData()
         k_data = stock_data.get_k_data(code)
-
         # 
         k_data1 = k_data.shift()
         k_data2 = k_data1.shift()
