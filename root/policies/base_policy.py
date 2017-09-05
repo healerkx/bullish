@@ -44,7 +44,8 @@ class Policy:
             if policy_lifetime == PolicyLifetime_Global:
                 clz.__instance = None
             elif policy_lifetime == PolicyLifetime_EachCode:
-                clz.__instance_dict = dict()
+                clz.__instance = None
+                clz.__current_code = None
             elif policy_lifetime == PolicyLifetime_AlwaysNew:
                 pass
             elif policy_lifetime == PolicyLifetime_Unknown:
@@ -61,14 +62,14 @@ class Policy:
     def get_policy_clz(policy_name):
         return Policy.policy_map[policy_name]
 
-    # TODO: GC for unused code
     @classmethod
     def instance_by_code(clz, code):
-        if code in clz.__instance_dict:
-            return clz.__instance_dict[code]
+        if code == clz.__current_code:
+            return clz.__instance
         else:
             instance = clz()
-            clz.__instance_dict[code] = instance
+            clz.__instance = instance
+            clz.__current_code = code
             return instance
 
     @classmethod
