@@ -2,10 +2,16 @@
 import talib
 from ..basic import *
 
+# 
 PolicyLifetime_Unknown      = 0
+# If you need a Policy single instance, set PolicyLifetime_Global.
 PolicyLifetime_Global       = 1
-PolicyLifetime_EachCode     = 2
+# Most of the time, A policy instance containing data against a certain code, 
+# set this value to class member policy_lifetime.
+PolicyLifetime_EachCode     = 2  
+# For each date or each code, create a brand new instance always.
 PolicyLifetime_AlwaysNew    = 3
+
 
 class Policy:
     """
@@ -16,11 +22,7 @@ class Policy:
     """
     policy_map = dict()
 
-    instance = None
-
-    instance_dict = dict()
-
-    pplicy_lifetime = PolicyLifetime_Unknown
+    policy_lifetime = PolicyLifetime_Unknown
 
     policy_name = ''
 
@@ -35,9 +37,21 @@ class Policy:
         return self.handle(code, context)
 
     @staticmethod
-    def register(policy_name):
+    def register(policy_name, policy_lifetime=PolicyLifetime_EachCode):
         def handler(clz):
             clz.policy_name = policy_name
+            clz.policy_lifetime = policy_lifetime
+            if policy_lifetime == PolicyLifetime_Global:
+                clz.__instance = None
+            elif policy_lifetime == PolicyLifetime_EachCode:
+                clz.__instance_dict = dict()
+            elif policy_lifetime == PolicyLifetime_AlwaysNew:
+                pass
+            elif policy_lifetime == PolicyLifetime_Unknown:
+                raise Exception('A policy MUST set a valid Policy Lifetime')
+            else:
+                raise Exception('A policy MUST set a valid Policy Lifetime')
+
             Policy.policy_map[policy_name] = clz
             return clz
 
@@ -47,20 +61,21 @@ class Policy:
     def get_policy_clz(policy_name):
         return Policy.policy_map[policy_name]
 
+    # TODO: GC for unused code
     @classmethod
     def instance_by_code(clz, code):
-        if code in clz.instance_dict:
-            return clz.instance_dict[code]
+        if code in clz.__instance_dict:
+            return clz.__instance_dict[code]
         else:
             instance = clz()
-            clz.instance_dict[code] = instance
+            clz.__instance_dict[code] = instance
             return instance
 
     @classmethod
     def get_singleton(clz):
-        if clz.instance is None:
-            clz.instance = clz()
-        return clz.instance
+        if clz.__instance is None:
+            clz.__instance = clz()
+        return clz.__instance
 
 
 

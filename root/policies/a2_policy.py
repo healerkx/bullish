@@ -11,7 +11,7 @@ import numpy as np
 # 然而数据结构对单只股票的纵向时间计算比较友好。
 # 所以尽量把排序安排到最后。
 
-@Policy.register('A2')
+@Policy.register('A2', PolicyLifetime_EachCode)
 class A2Policy(Policy):
     """
     一般选股策略A2(A1的优化版本)
@@ -27,9 +27,6 @@ class A2Policy(Policy):
     """
 
     k_data = None
-
-    pplicy_lifetime = PolicyLifetime_EachCode
-
 
     def get_recent_days_data(self, code, context):
         """

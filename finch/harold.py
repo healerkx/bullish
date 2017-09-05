@@ -61,9 +61,10 @@ if __name__ == '__main__':
             [date] -> LOG
 
             # 考虑基础的策略, 可能直接过滤（以后考虑放到Policy里面）
-            continue if is_bad_code(*code*) 
+            continue if is_bad_code(*code*)
             
-            for policy in agent.policies:    
+            for policy_class in agent.policy_classes:
+                policy = policy_class[singleton / instance-by-code / always-new]
                 policy.handle() -> [policy result] -> LOG
 
             #---------------------
