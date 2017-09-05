@@ -37,7 +37,7 @@ class Policy:
         return self.handle(code, context)
 
     @staticmethod
-    def register(policy_name, policy_lifetime=PolicyLifetime_EachCode):
+    def register(policy_name, policy_lifetime):
         def handler(clz):
             clz.policy_name = policy_name
             clz.policy_lifetime = policy_lifetime

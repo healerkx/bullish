@@ -7,7 +7,7 @@ from ..stock_data import *
 import numpy as np
 
 
-@Policy.register('SeekHH')
+@Policy.register('SeekHH', PolicyLifetime_EachCode)
 class SeekHHPolicy(Policy):
     """
     Seek Hammer, Hanging-man.

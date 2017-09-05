@@ -7,7 +7,7 @@ from ..stock_data import *
 import numpy as np
 
 
-@Policy.register('O1')
+@Policy.register('O1', PolicyLifetime_EachCode)
 class O1Policy(Policy):
     """
     用于下载daily ticks data into pickle files

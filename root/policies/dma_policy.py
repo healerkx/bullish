@@ -3,7 +3,7 @@ from .base_policy import *
 import talib
 
 
-@Policy.register('DMA')
+@Policy.register('DMA', PolicyLifetime_EachCode)
 class DMAPolicy(Policy):
     """
     双均线策略

@@ -2,7 +2,7 @@
 from .base_policy import *
 import talib
 
-@Policy.register('A1')
+@Policy.register('A1', PolicyLifetime_Global)
 class A1Policy(Policy):
     """
     一般选股策略A1
