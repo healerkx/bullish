@@ -6,9 +6,9 @@ date_end="2017-08-17"
 travel_type = "watch"
 
 [policy.p1]
-name="A2"
+name="SeekCandle"
 weight=10
 
 
 [log]
-path="/Users/healer/Projects/fregata.d/results"
+path="/Users/healer/Projects/fregata.d/seeks"

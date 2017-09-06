@@ -4,6 +4,7 @@ import talib
 from datetime import datetime
 import time
 from ..stock_data import *
+from ..ring_list import *
 import numpy as np
 
 
@@ -12,21 +13,17 @@ class SeekCandlestickPolicy(Policy):
     """
     Seek Hammer, Hanging-man.
     """
+    k_data = None
+
     def initialize(self, **args):
         if 'code' not in args:
             raise Exception('Code not provided')
         
         self.load_data(args['code'])
-        self.row_iter = self.k_data.iterrows()
-
-        self.window_size = 10 # TODO: 参数化
-        self.window_current = 0
-        self.window_tail = 0
-        self.window_slides = []
-        # Fill all the window_slides
-        for i in range(0, self.window_size):
-            self.window_slides.append(next(self.row_iter))
-            self.window_tail += 1
+        k_data = self.k_data[self.k_data.index >= datetime.strptime('2017-01-02', '%Y-%m-%d').date()]
+        self.dates = set(map(lambda x: str(x), k_data.index))
+        self.row_iter = k_data.iterrows()
+        self.ring_list = RingList(self.row_iter, 10)
 
     #
     def load_data(self, code):
@@ -37,24 +34,20 @@ class SeekCandlestickPolicy(Policy):
         self.k_data = stock_data.get_k_data(code)
         return self.k_data
 
-    def move_window_slide(self):
-        row = next(self.row_iter)
-        self.window_tail += 1
-        self.window_tail = self.window_tail % self.window_size
-        self.window_slides[self.window_tail] = row
-        self.window_current += 1
-
-
-    def get_dataframe_window(self, from_date, dates_count):
-        pass
-
-    def seek_hh(self, code, context):
+    def seek_candle_pattern(self, code, context):
+        data = self.ring_list.first()
+        print(data[1]['open'])
+        self.ring_list.forward()
         return True
 
     def handle(self, code, context):
         """
         """
-        result = self.seek_hh(code, context)
+        date = formatted_date(context.get_time())
+        
+        if date not in self.dates:
+            return None
+        result = self.seek_candle_pattern(code, context)
         
         return result
 
