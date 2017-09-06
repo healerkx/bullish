@@ -7,6 +7,8 @@ from ..stock_data import *
 from ..ring_list import *
 import numpy as np
 
+# 使用RingList对要处理的DataFrame切片(slice)进行抽象
+# 避免了反复使用index date进行查找, 并且使用切片copy数据片段的做法
 
 @Policy.register('SeekCandle', PolicyLifetime_EachCode)
 class SeekCandlestickPolicy(Policy):

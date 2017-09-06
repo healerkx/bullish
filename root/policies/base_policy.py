@@ -42,6 +42,7 @@ class Policy:
     def initialize(self, **args):
         pass
 
+    # register针对class进行修饰, 完成了dict注册, 和参数化类的功能
     @staticmethod
     def register(policy_name, policy_lifetime):
         def handler(clz):
