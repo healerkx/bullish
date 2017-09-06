@@ -51,52 +51,54 @@ class RingList:
 
     def items(self):
         return self.__items[self.__head:] + self.__items[0: self.__head]
-    
-a = list(range(0, 50))
 
 
-l = RingList(iter(a))
+if __name__ == '__main__':
+    a = list(range(0, 50))
 
-print(l)
-print(l.first())
-print(l.origin())
-print(l.items())
 
-a = l.forward()
-print(l)
-print(l.nth(0))
-print(a)
-print(l.items())
+    l = RingList(iter(a))
 
-a = l.forward(2)
-print(l)
-print(l.nth(0))
-print(a)
-print(l.items())
+    print(l)
+    print(l.first())
+    print(l.origin())
+    print(l.items())
 
-a = l.forward(10)
-print(l)
-print(l.nth(0))
-print(a)
-print(l.items())
+    a = l.forward()
+    print(l)
+    print(l.nth(0))
+    print(a)
+    print(l.items())
 
-s = l.forward(10)
-print(l)
-print(l.nth(0))
-print(s)
-print(l.items())
+    a = l.forward(2)
+    print(l)
+    print(l.nth(0))
+    print(a)
+    print(l.items())
 
-s = l.forward(20)
-print(l)
-print(l.nth(0))
-print(s)
-print(l.items())
+    a = l.forward(10)
+    print(l)
+    print(l.nth(0))
+    print(a)
+    print(l.items())
 
-s = l.forward(20)
-print(l)
-print(l.nth(0))
-print(s)
-print(l.items())
+    s = l.forward(10)
+    print(l)
+    print(l.nth(0))
+    print(s)
+    print(l.items())
+
+    s = l.forward(20)
+    print(l)
+    print(l.nth(0))
+    print(s)
+    print(l.items())
+
+    s = l.forward(20)
+    print(l)
+    print(l.nth(0))
+    print(s)
+    print(l.items())
 
 
 
