@@ -42,7 +42,8 @@ codes = ["600149", "600165", "600166", "600167", "600168", "600265", "600295", "
 codes = codes[:1]
 for code in codes:
     ag = Agent(None)
-    ag.add_policy("C1")
+
+    ag.add_policy("C1") # TODO: Policy toml config object
     ag.add_concerned_code(code)
 
     tm = TimeMachine()

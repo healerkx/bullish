@@ -37,8 +37,14 @@ class SeekCandlestickPolicy(Policy):
         return self.k_data
 
     def seek_candle_pattern(self, code, context):
+        '''
+        '''
+        print(self.params)
+        
         data = self.ring_list.first()
         print(data[1]['open'])
+
+        # Forward to next date
         self.ring_list.forward()
         return True
 

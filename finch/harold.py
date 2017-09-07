@@ -34,9 +34,8 @@ def run_for_all_codes(config):
     stock_data = StockData()
     agent = Agent(config)
 
-    for policy_name in config['policy']:
-        policy = config['policy'][policy_name]
-        agent.add_policy(policy['name'])
+    for policy in config['policy']:
+        agent.add_policy(policy)
 
     for code in stock_data.get_codes():
         if is_bad_code(code):
@@ -49,6 +48,7 @@ def main(argv):
     filepath = os.path.join(os.path.dirname(__file__), 'conf', argv[0])
     with open(filepath) as file:
         config = toml.load(file)
+        # print(config)
         config['__file__'] = os.path.basename(filename)
         run_for_all_codes(config)
 

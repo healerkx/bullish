@@ -15,10 +15,11 @@ class RunPolicyAction(BaseAction):
 
     def execute(self, context):
         action_config = self.get_action_config()
-        policy_list = action_config['policy_list']
+        policy_name_list = action_config['policy_list']
 
         ag = Agent()
-        for policy in policy_list:
+        for policy_name in policy_name_list:
+            policy = {'name': policy_name, 'params':None}
             ag.add_policy(policy)
 
         action_context = Context()

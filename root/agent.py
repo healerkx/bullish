@@ -33,9 +33,12 @@ class Agent:
     def get_concerned_codes(self):
         return self.concerned_codes
 
-    def add_policy(self, policy_name):
+    def add_policy(self, policy):
+        policy_name = policy['name']
         policy_clz = Policy.get_policy_clz(policy_name)
-        # self.policy_list.append(policy_clz())
+        if 'params' in policy:
+            policy_clz.params = policy['params']
+        
         self.policy_clz_list.append(policy_clz)
 
     def get_repo_count(self, code):

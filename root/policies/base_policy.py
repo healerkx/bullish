@@ -94,6 +94,7 @@ class PolicyResult:
     def __init__(self):
         pass
 
+
 # TODO: Remove
 class Seek3BlackCrowsPolicy(Policy):
     """
