@@ -39,10 +39,16 @@ class SeekCandlestickPolicy(Policy):
     def seek_candle_pattern(self, code, context):
         '''
         '''
-        print(self.params)
-        
-        data = self.ring_list.first()
-        print(data[1]['open'])
+        if 'candle_pattern' not in self.params:
+            return
+
+        candle_pattern = self.params['candle_pattern']
+        if candle_pattern == 'hammer':
+            self.seek_hammer()
+        elif candle_pattern == 'hanging_man':
+            self.seek_hanging_man()
+        elif candle_pattern == 'seek_engulfing':
+            self.seek_engulfing()
 
         # Forward to next date
         self.ring_list.forward()
@@ -52,11 +58,22 @@ class SeekCandlestickPolicy(Policy):
         """
         """
         date = formatted_date(context.get_time())
-        
         if date not in self.dates:
             return None
         result = self.seek_candle_pattern(code, context)
-        
         return result
 
-    
+    ###########################################################################
+    def seek_hammer(self):
+        data = self.ring_list.first()
+        print(data[1]['open'])
+
+
+    def seek_hanging_man(self):
+        data = self.ring_list.first()
+        print(data[1]['open'])
+
+
+    def seek_engulfing(self):
+        data = self.ring_list.first()
+        print(data[1]['open'])        

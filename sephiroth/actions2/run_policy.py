@@ -19,7 +19,7 @@ class RunPolicyAction(BaseAction):
 
         ag = Agent()
         for policy_name in policy_name_list:
-            policy = {'name': policy_name, 'params':None}
+            policy = {'name': policy_name, 'params': None}
             ag.add_policy(policy)
 
         action_context = Context()
