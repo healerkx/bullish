@@ -34,6 +34,9 @@ class Agent:
         return self.concerned_codes
 
     def add_policy(self, policy):
+        '''
+        @param policy should be a mapping object, contains keys: 'name', 'params'
+        '''
         policy_name = policy['name']
         policy_clz = Policy.get_policy_clz(policy_name)
         if 'params' in policy:
@@ -41,6 +44,7 @@ class Agent:
         
         self.policy_clz_list.append(policy_clz)
 
+    #
     def get_repo_count(self, code):
         if code in self.repo:
             return self.repo[code]

@@ -20,7 +20,7 @@ class SeekCandlestickPolicy(Policy):
     def initialize(self, **args):
         if 'code' not in args:
             raise Exception('Code not provided')
-        
+
         self.load_data(args['code'])
         k_data = self.k_data[self.k_data.index >= datetime.strptime('2017-01-02', '%Y-%m-%d').date()]
         self.dates = set(map(lambda x: str(x), k_data.index))
@@ -43,12 +43,12 @@ class SeekCandlestickPolicy(Policy):
             return
 
         candle_pattern = self.params['candle_pattern']
-        if candle_pattern == 'hammer':
-            self.seek_hammer()
-        elif candle_pattern == 'hanging_man':
-            self.seek_hanging_man()
-        elif candle_pattern == 'seek_engulfing':
-            self.seek_engulfing()
+        func_name = 'seek_%s' % candle_pattern
+        if not hasattr(self, func_name):
+            raise Exception('No function for this pattern seeking')
+
+        func = getattr(self, func_name)
+        func()
 
         # Forward to next date
         self.ring_list.forward()
@@ -76,4 +76,8 @@ class SeekCandlestickPolicy(Policy):
 
     def seek_engulfing(self):
         data = self.ring_list.first()
-        print(data[1]['open'])        
+        print(data[1]['open'])      
+
+    def seek_3_black_crows(self):
+        data = self.ring_list.first()
+        print(data[1]['open'])            
