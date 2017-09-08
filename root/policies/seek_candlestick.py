@@ -25,7 +25,7 @@ class SeekCandlestickPolicy(Policy):
         k_data = self.k_data[self.k_data.index >= datetime.strptime('2017-01-02', '%Y-%m-%d').date()]
         self.dates = set(map(lambda x: str(x), k_data.index))
         self.row_iter = k_data.iterrows()
-        self.ring_list = RingList(self.row_iter, 10)
+        self.ring_list = RingList(self.row_iter, 7)
 
     #
     def load_data(self, code):
@@ -63,15 +63,29 @@ class SeekCandlestickPolicy(Policy):
         result = self.seek_candle_pattern(code, context)
         return result
 
+    def get_items(self, data):
+        return data['open'], data['close'], data['high'], data['low']
+
     ###########################################################################
     def seek_hammer(self):
-        data = self.ring_list.first()
-        print(data[1]['open'])
+        data3 = self.ring_list.nth(3)
+        
+        open3, close3, high3, low3 = self.get_items(data3[1])
+        if (high3 - close3) / (high3 - low3) < 0.03 and (open3 - low3) / (close3 - open3) > 2:
+            # Found one may be a real hammer
+            data2 = self.ring_list.nth(2)
+
+            print("#", open3, close3, high3, low3)
+            # TODO:
 
 
     def seek_hanging_man(self):
-        data = self.ring_list.first()
-        print(data[1]['open'])
+        data3 = self.ring_list.nth(3)
+        
+        open3, close3, high3, low3 = self.get_items(data3[1])
+        if (high3 - close3) / (high3 - low3) < 0.03 and (close3 - low3) / (open3 - close3) > 2:
+            print("#", open3, close3, high3, low3)
+            data2 = self.ring_list.nth(2)
 
 
     def seek_engulfing(self):

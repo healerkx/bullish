@@ -38,7 +38,10 @@ class RingList:
         return self.__items[self.__head]
 
     def nth(self, n):
-        return self.__items[self.__head + n % self.__window_size]
+        '''
+        n is zero based. 
+        '''
+        return self.__items[(self.__head + n) % self.__window_size]
 
     def __forward(self):        
         index = self.__tail % self.__window_size
