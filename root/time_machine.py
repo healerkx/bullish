@@ -20,7 +20,7 @@ class TimeMachine:
     def on_date(self, context, begin_time, current_time):
         begin = formatted_date(begin_time)
         end = formatted_date(current_time)
-        print('[%s]' % end)
+        # print('[%s]' % end)
 
         context.set_time(current_time)
         self.agent.log("[%s]" % end)

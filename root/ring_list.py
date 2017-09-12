@@ -28,8 +28,13 @@ class RingList:
         self.__items = []
 
         for i in range(0, window_size):
-            self.__items.append(next(iter))
-            self.__tail += 1
+            try:
+                self.__items.append(next(iter))
+                self.__tail += 1
+            except:
+                break
+        if len(self.__items) < self.__window_size:
+            self.__window_size = len(self.__items)
 
     def __str__(self):
         return "(%d, %d)" % (self.__head, self.__tail)

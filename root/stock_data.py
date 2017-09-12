@@ -7,7 +7,7 @@ from .basic import *
 from .cache import *
 import pandas as pd
 import MySQLdb
-
+from datetime import datetime
 from .stock_data_storage import StockDataStorage
 
 # Global
@@ -82,7 +82,8 @@ class StockData:
             'low':      df['low'].values,
             'volume':   df['volume'].values
             }
-        k_data = pd.DataFrame(d, index=df['date'].values, columns=['open', 'close', 'high', 'low', 'volume'])
+        dates = [datetime.strptime(x, '%Y-%m-%d').date() for x in df['date'].values]
+        k_data = pd.DataFrame(d, index=dates, columns=['open', 'close', 'high', 'low', 'volume'])
         return k_data 
         
     def get_k_data(self, code):
@@ -104,6 +105,7 @@ class StockData:
             return k_data
         
         k_data = ts.get_k_data(code)
+
         if k_data is None or k_data.empty:
             return None
 

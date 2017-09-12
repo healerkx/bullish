@@ -17,16 +17,20 @@ class SeekCandlestickPolicy(Policy):
     """
     k_data = None
 
+    dates = None
+
     def initialize(self, **args):
         if 'code' not in args:
             raise Exception('Code not provided')
 
-        self.load_data(args['code'])
-        k_data = self.k_data[self.k_data.index >= datetime.strptime('2017-01-02', '%Y-%m-%d').date()]
+        k_data = self.load_data(args['code'])
+        if k_data is None:
+            return False
+        k_data = k_data[k_data.index >= datetime.strptime('2017-01-02', '%Y-%m-%d').date()]
         self.dates = set(map(lambda x: str(x), k_data.index))
         self.row_iter = k_data.iterrows()
         self.ring_list = RingList(self.row_iter, 7)
-
+        return True
     #
     def load_data(self, code):
         if self.k_data is not None:
@@ -34,6 +38,7 @@ class SeekCandlestickPolicy(Policy):
         
         stock_data = StockData()
         self.k_data = stock_data.get_k_data(code)
+        
         return self.k_data
 
     def seek_candle_pattern(self, code, context):
@@ -57,6 +62,8 @@ class SeekCandlestickPolicy(Policy):
     def handle(self, code, context):
         """
         """
+        if self.dates is None:  # 初始化失败
+            return None
         date = formatted_date(context.get_time())
         if date not in self.dates:
             return None
@@ -68,14 +75,23 @@ class SeekCandlestickPolicy(Policy):
 
     ###########################################################################
     def seek_hammer(self):
+        '''
+        Ta-lib的CDLHAMMER
+        '''
         data3 = self.ring_list.nth(3)
         
         open3, close3, high3, low3 = self.get_items(data3[1])
         if (high3 - close3) / (high3 - low3) < 0.03 and (open3 - low3) / (close3 - open3) > 2:
             # Found one may be a real hammer
             data2 = self.ring_list.nth(2)
+            data1 = self.ring_list.nth(1)
+            data0 = self.ring_list.nth(0)
 
-            print("#", open3, close3, high3, low3)
+            data4 = self.ring_list.nth(4)
+            data5 = self.ring_list.nth(5)
+            data6 = self.ring_list.nth(6)
+
+            print("#", data3[0], open3, close3, high3, low3)
             # TODO:
 
 

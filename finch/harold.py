@@ -48,7 +48,7 @@ def main(argv):
     filepath = os.path.join(os.path.dirname(__file__), 'conf', argv[0])
     with open(filepath) as file:
         config = toml.load(file)
-        # print(config)
+        
         config['__file__'] = os.path.basename(filename)
         run_for_all_codes(config)
 

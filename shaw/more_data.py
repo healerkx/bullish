@@ -27,6 +27,7 @@ import pandas as pd
 def get_data(db, code, table_name, ktype):
     # Get daily data from tushare.get_k_data for open..., tushare.get_hist_data for turnover
     from_date = '2014-10-01'
+    # TODO: fix, 不是昨天，而是上一个交易日(目前周一不适合补齐数据)
     yesterday = str(datetime.today().date() + timedelta(days=-1))
     
     with db.cursor() as cursor:
@@ -117,6 +118,7 @@ def handle_code_data(db, code):
     wf = get_weekly_data(db, code)
     if wf is not None and not wf.empty:
         insert_code_data(db, code, wf, 'sk_stock_weekly_data')
+    print(code)
     
 
 def query_data_info(db):
@@ -157,9 +159,7 @@ def query_data_detail(db):
 
 
 def insert_data(db):
-    stock_data = StockData()
-    res = handle_code_data(db, '000679')
-    exit()
+    stock_data = StockData()    
     for code in stock_data.get_codes():
         res = handle_code_data(db, code)
 
