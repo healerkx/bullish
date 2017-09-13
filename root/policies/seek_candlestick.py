@@ -100,8 +100,16 @@ class SeekCandlestickPolicy(Policy):
         
         open3, close3, high3, low3 = self.get_items(data3[1])
         if (high3 - close3) / (high3 - low3) < 0.03 and (close3 - low3) / (open3 - close3) > 2:
-            print("#", open3, close3, high3, low3)
+            # Found one may be a real hanging_man
             data2 = self.ring_list.nth(2)
+            data1 = self.ring_list.nth(1)
+            data0 = self.ring_list.nth(0)
+
+            data4 = self.ring_list.nth(4)
+            data5 = self.ring_list.nth(5)
+            data6 = self.ring_list.nth(6)
+
+            print("#", data3[0], open3, close3, high3, low3)
 
 
     def seek_engulfing(self):
