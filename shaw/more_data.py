@@ -29,6 +29,7 @@ def get_data(db, code, table_name, ktype):
     from_date = '2014-10-01'
     # TODO: fix, 不是昨天，而是上一个交易日(目前周一不适合补齐数据)
     yesterday = str(datetime.today().date() + timedelta(days=-1))
+    print(yesterday)
     
     with db.cursor() as cursor:
         cursor.execute('select max(date) from %s where code=\'%s\'' % (table_name, code))
@@ -45,7 +46,8 @@ def get_data(db, code, table_name, ktype):
         print(code, 'suspension?')
     
     df1 = ts.get_hist_data(code, start=from_date, end=yesterday, ktype=ktype)
-    
+    # For convert_k_data return DataFrame with date type index
+    df1.index = [datetime.strptime(x, '%Y-%m-%d').date() for x in df1.index]
     df0 = StockData.convert_k_data(df)
     df0['turnover'] = df1['turnover']
 
