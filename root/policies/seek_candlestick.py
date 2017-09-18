@@ -29,7 +29,7 @@ class SeekCandlestickPolicy(Policy):
         k_data = k_data[k_data.index >= datetime.strptime('2014-01-01', '%Y-%m-%d').date()]
         self.dates = set(map(lambda x: str(x), k_data.index))
         self.row_iter = k_data.iterrows()
-        self.ring_list = RingList(self.row_iter, 7)
+        self.ring_list = RingList(self.row_iter, 8)
         return True
     #
     def load_data(self, code):
@@ -86,10 +86,30 @@ class SeekCandlestickPolicy(Policy):
         return data[1][key]
 
     def compare_close(self, close, nth_list, compare_func):
-        result = []
-        for nth in nth_list:
-            nth_close = self.get_ring_list_item(nth, 'close')
-            result.append(compare_func(nth_close, close))
+        '''
+        0. close 0 compare with close 3
+        1. close 1 compare with close 3
+        2. close 2 compare with close 3
+        3. close 3 compare with close 3 (No meanings)
+        4. close 4 compare with close 3
+        5. close 5 compare with close 3
+        6. close 6 compare with close 3
+        7. close 7 compare with close 3
+        8. abs(close 7 - close 3) / close 3 > 10%
+        9. close 5 compare with close 4
+        10. close 6 compare with close 5
+        11. close 7 compare with close 6
+        '''
+        close_list = [self.get_ring_list_item(nth, 'close') for nth in nth_list]
+        close_pair_list = [(nth_close, close) for nth_close in close_list]
+        # 8
+        close_pair_list.append((abs(close_list[7] - close) * 10, close))
+        # 9
+        close_pair_list.append((close_list[5], close_list[4]))
+        close_pair_list.append((close_list[6], close_list[5]))
+        close_pair_list.append((close_list[7], close_list[6]))
+
+        result = [compare_func(close1, close2) for (close1, close2) in close_pair_list]
         return result
 
     ###########################################################################
@@ -102,7 +122,7 @@ class SeekCandlestickPolicy(Policy):
         open3, close3, high3, low3 = self.get_items(data3[1])
         if (high3 - close3) / (high3 - low3) < 0.03 and (open3 - low3) / (close3 - open3) > 2:
             # Found one may be a real hammer
-            result = self.compare_close(close3, [0, 1, 2, 4, 5, 6], SeekCandlestickPolicy.compare_func1)
+            result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func1)
 
             print("#", data3[0], open3, close3, high3, low3)
             print('*', ','.join(result))
@@ -115,15 +135,20 @@ class SeekCandlestickPolicy(Policy):
         open3, close3, high3, low3 = self.get_items(data3[1])
         if (high3 - close3) / (high3 - low3) < 0.03 and (close3 - low3) / (open3 - close3) > 2:
             # Found one may be a real hanging_man
-            result = self.compare_close(close3, [0, 1, 2, 4, 5, 6], SeekCandlestickPolicy.compare_func2)
+            result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func2)
 
             print("#", data3[0], open3, close3, high3, low3)
             print('*', ','.join(result))
 
 
     def seek_engulfing(self):
-        data = self.ring_list.first()
-        print(data[1]['open'])      
+        '''
+        吞没模式
+        '''
+        data3 = self.ring_list.nth(3)
+        data4 = self.ring_list.nth(4)
+        
+
 
     def seek_3_black_crows(self):
         data = self.ring_list.first()
