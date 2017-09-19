@@ -9,7 +9,7 @@ travel_type = "watch"
 name="SeekCandle"
 weight=10
 [policy.params]
-candle_pattern="hanging_man"
+candle_pattern="hammer"
 
 
 

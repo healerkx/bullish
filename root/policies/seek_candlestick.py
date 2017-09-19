@@ -99,15 +99,22 @@ class SeekCandlestickPolicy(Policy):
         9. close 5 compare with close 4
         10. close 6 compare with close 5
         11. close 7 compare with close 6
+        12. close 1 compare with close 0
+        13. close 2 compare with close 1
+        14. close 3 compare with close 2
         '''
         close_list = [self.get_ring_list_item(nth, 'close') for nth in nth_list]
         close_pair_list = [(nth_close, close) for nth_close in close_list]
         # 8
         close_pair_list.append((abs(close_list[7] - close) * 10, close))
-        # 9
+        # 9 -
         close_pair_list.append((close_list[5], close_list[4]))
         close_pair_list.append((close_list[6], close_list[5]))
         close_pair_list.append((close_list[7], close_list[6]))
+        # 12 -
+        close_pair_list.append((close_list[1], close_list[0]))
+        close_pair_list.append((close_list[2], close_list[1]))
+        close_pair_list.append((close_list[3], close_list[2]))
 
         result = [compare_func(close1, close2) for (close1, close2) in close_pair_list]
         return result
@@ -124,8 +131,8 @@ class SeekCandlestickPolicy(Policy):
             # Found one may be a real hammer
             result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func1)
 
-            print("#", data3[0], open3, close3, high3, low3)
-            print('*', ','.join(result))
+            print("@", data3[0])
+            print('#', ','.join(result))
             # TODO:
 
 
