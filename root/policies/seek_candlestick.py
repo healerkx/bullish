@@ -144,16 +144,31 @@ class SeekCandlestickPolicy(Policy):
             # Found one may be a real hanging_man
             result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func2)
 
-            print("#", data3[0], open3, close3, high3, low3)
-            print('*', ','.join(result))
+            print("@", data3[0], open3, close3, high3, low3)
+            print('#', ','.join(result))
 
 
     def seek_engulfing(self):
         '''
-        吞没模式
+        吞没形态
         '''
         data3 = self.ring_list.nth(3)
+        open3, close3, high3, low3 = self.get_items(data3[1])
+
         data4 = self.ring_list.nth(4)
+        open4, close4, high4, low4 = self.get_items(data4[1])
+
+        if (open3 > close3) != (open4 > close4): # 颜色相反
+            # 
+            if close3 > open3 and open4 > close3 and open3 > close4:
+                print("@", data3[0])
+                result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func1)
+                print('D', ','.join(result))
+            #    
+            elif close3 < open3 and open4 < close3 and open3 < close4:
+                print("@", data3[0])
+                result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func2)
+                print('U', ','.join(result))
         
 
 
