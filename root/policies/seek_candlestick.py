@@ -164,7 +164,7 @@ class SeekCandlestickPolicy(Policy):
                 print("@", data3[0])
                 result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func1)
                 print('D', ','.join(result))
-            #    
+            # 
             elif close3 < open3 and open4 < close3 and open3 < close4:
                 print("@", data3[0])
                 result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func2)
