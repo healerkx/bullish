@@ -44,8 +44,14 @@ def get_data(db, code, table_name, ktype):
     df = ts.get_k_data(code, start=from_date, end=yesterday, ktype=ktype)
     if from_date == yesterday and df.empty:
         print(code, 'suspension?')
-    
+
+    if df.empty:
+        return None
+
     df1 = ts.get_hist_data(code, start=from_date, end=yesterday, ktype=ktype)
+
+    if df1 is None:
+        return None
     # For convert_k_data return DataFrame with date type index
     df1.index = [datetime.strptime(x, '%Y-%m-%d').date() for x in df1.index]
     df0 = StockData.convert_k_data(df)
@@ -156,13 +162,8 @@ def query_data_info(db):
     cursor.close()
 
 
-def query_data_detail(db):
-    pass
-
-
-def insert_data(db):
-    stock_data = StockData()    
-    for code in stock_data.get_codes():
+def insert_data(db, codes):
+    for code in codes:
         res = handle_code_data(db, code)
 
 def get_data_setter(fields, values):
@@ -353,25 +354,42 @@ def main(argv):
     print('DB config:', config)
     db = MySQLdb.connect(**config, conv=conv)
 
-    if len(argv) == 0:
-        insert_data(db)
-    elif argv[0] == 'insert':
-        insert_data(db)
-    elif argv[0] == 'update-values':
+    command = 'insert'
+    code = None
+    codes = []
+    if len(argv) > 0:
+        command = argv[0]
+    if len(argv) > 1:
+        code = argv[1]
+
+    stock_data = StockData()
+    if code is not None:
+        if code.endswith('~'):
+            code = code.strip('~')
+            codes = [c for c in stock_data.get_codes() if c >= code]
+        else:
+            codes = [code]
+    else:
+        codes = stock_data.get_codes()
+
+    print(command, argv)
+
+    if command == 'insert':
+        insert_data(db, codes)
+    elif command == 'update-values':
         code = argv[1] if len(argv) > 1 else None
         update_data(db, code)        
-    elif argv[0] == 'update-codes':
+    elif command == 'update-codes':
         update_codes(db)        
-    elif argv[0] == 'query':
+    elif command == 'query':
         query_data_info(db)
-    elif argv[0] == 'detail':
-        query_data_detail(db)
-    elif argv[0] == 'bank':
+    elif command == 'bank':
         bank_data(db)
-    else:
-        filename = argv[1] if len(argv) > 1 else None
-        load_dataframe(db, argv[0], filename)
+    elif command == 'info':
+        filename = argv[2] if len(argv) > 2 else None
+        load_dataframe(db, code, filename)
 
 
 if __name__ == '__main__':
+    # TODO: Help
     main(sys.argv[1:])
