@@ -346,6 +346,23 @@ def load_dataframe(db, code, filename=None):
     print('use', time.time() - begin_time, 'seconds')
     return df
 
+def usage():
+    return '''
+HELP:
+  python3 more_data.py <command> <code>
+
+  commands:
+    insert
+    update-values
+    update-codes
+    query
+    bank
+    info
+    help
+
+  examples:
+    python3 more_data.py insert 600100~
+'''
 
 def main(argv):
     conv = MySQLdb.converters.conversions.copy()
@@ -354,7 +371,7 @@ def main(argv):
     print('DB config:', config)
     db = MySQLdb.connect(**config, conv=conv)
 
-    command = 'insert'
+    command = 'help'
     code = None
     codes = []
     if len(argv) > 0:
@@ -372,8 +389,6 @@ def main(argv):
     else:
         codes = stock_data.get_codes()
 
-    print(command, argv)
-
     if command == 'insert':
         insert_data(db, codes)
     elif command == 'update-values':
@@ -388,8 +403,10 @@ def main(argv):
     elif command == 'info':
         filename = argv[2] if len(argv) > 2 else None
         load_dataframe(db, code, filename)
+    elif command == 'help':
+        print(usage())
 
 
 if __name__ == '__main__':
-    # TODO: Help
+    
     main(sys.argv[1:])
