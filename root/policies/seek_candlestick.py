@@ -29,7 +29,7 @@ class SeekCandlestickPolicy(Policy):
         k_data = k_data[k_data.index >= datetime.strptime('2014-01-01', '%Y-%m-%d').date()]
         self.dates = set(map(lambda x: str(x), k_data.index))
         self.row_iter = k_data.iterrows()
-        self.ring_list = RingList(self.row_iter, 8)
+        self.ring_list = RingList(self.row_iter, 20)
         return True
     #
     def load_data(self, code):
@@ -87,35 +87,12 @@ class SeekCandlestickPolicy(Policy):
 
     def compare_close(self, close, nth_list, compare_func):
         '''
-        0. close 0 compare with close 3
-        1. close 1 compare with close 3
-        2. close 2 compare with close 3
-        3. close 3 compare with close 3 (No meanings)
-        4. close 4 compare with close 3
-        5. close 5 compare with close 3
-        6. close 6 compare with close 3
-        7. close 7 compare with close 3
-        8. abs(close 7 - close 3) / close 3 > 10%
-        9. close 5 compare with close 4
-        10. close 6 compare with close 5
-        11. close 7 compare with close 6
-        12. close 1 compare with close 0
-        13. close 2 compare with close 1
-        14. close 3 compare with close 2
         '''
         close_list = [self.get_ring_list_item(nth, 'close') for nth in nth_list]
         close_pair_list = [(nth_close, close) for nth_close in close_list]
         # 8
-        close_pair_list.append((abs(close_list[7] - close) * 10, close))
+        close_pair_list.append((abs(close_list[-1] - close) * 10, close))
         # 9 -
-        close_pair_list.append((close_list[5], close_list[4]))
-        close_pair_list.append((close_list[6], close_list[5]))
-        close_pair_list.append((close_list[7], close_list[6]))
-        # 12 -
-        close_pair_list.append((close_list[1], close_list[0]))
-        close_pair_list.append((close_list[2], close_list[1]))
-        close_pair_list.append((close_list[3], close_list[2]))
-
         result = [compare_func(close1, close2) for (close1, close2) in close_pair_list]
         return result
 
@@ -124,29 +101,28 @@ class SeekCandlestickPolicy(Policy):
         '''
         Ta-lib的CDLHAMMER
         '''
-        data3 = self.ring_list.nth(3)
+        happen_day_data = self.ring_list.nth(6)
         
-        open3, close3, high3, low3 = self.get_items(data3[1])
-        if (high3 - close3) / (high3 - low3) < 0.03 and (open3 - low3) / (close3 - open3) > 2:
+        open, close, high, low = self.get_items(happen_day_data[1])
+        if (high - close) / (high - low) < 0.03 and (open - low) / (close - open) > 2.0:
             # Found one may be a real hammer
-            result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func1)
+            result = self.compare_close(close, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], SeekCandlestickPolicy.compare_func1)
 
-            print("@", data3[0])
+            print("@", happen_day_data[0])
             print('#', ','.join(result))
             # TODO:
 
 
     def seek_hanging_man(self):
-        data3 = self.ring_list.nth(3)
+        happen_day_data = self.ring_list.nth(6)
         
-        open3, close3, high3, low3 = self.get_items(data3[1])
-        if (high3 - close3) / (high3 - low3) < 0.03 and (close3 - low3) / (open3 - close3) > 2:
+        open, close, high, low = self.get_items(happen_day_data[1])
+        if (high - close) / (high - low) < 0.03 and (close - low) / (open - close) > 2:
             # Found one may be a real hanging_man
-            result = self.compare_close(close3, [0, 1, 2, 3, 4, 5, 6, 7], SeekCandlestickPolicy.compare_func2)
+            result = self.compare_close(close, [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19], SeekCandlestickPolicy.compare_func2)
 
-            print("@", data3[0], open3, close3, high3, low3)
+            print("@", happen_day_data[0])
             print('#', ','.join(result))
-
 
     def seek_engulfing(self):
         '''
@@ -175,3 +151,38 @@ class SeekCandlestickPolicy(Policy):
     def seek_3_black_crows(self):
         data = self.ring_list.first()
         print(data[1]['open'])            
+
+'''
+对hammer和hanging-man的计算：
+从2014年10月到2017年8月，几年的时间内，统计形态发生前后的股票收盘价比较，
+计算结果，以hammer为例:
+4683.000000, 0.412817 	| 6661.000000, 0.587183
+4363.000000, 0.384609 	| 6981.000000, 0.615391
+4416.000000, 0.389281 	| 6928.000000, 0.610719
+4120.000000, 0.363188 	| 7224.000000, 0.636812
+3692.000000, 0.325458 	| 7652.000000, 0.674542
+1452.000000, 0.127997 	| 9892.000000, 0.872003
+11344.000000, 1.000000 	| 0.000000, 0.000000
+6322.000000, 0.557299 	| 5022.000000, 0.442701
+5538.000000, 0.488188 	| 5806.000000, 0.511812
+5702.000000, 0.502645 	| 5642.000000, 0.497355
+5921.000000, 0.521950 	| 5423.000000, 0.478050
+6058.000000, 0.534027 	| 5286.000000, 0.465973
+6046.000000, 0.532969 	| 5298.000000, 0.467031
+6257.000000, 0.551569 	| 5087.000000, 0.448431
+6360.000000, 0.560649 	| 4984.000000, 0.439351
+6258.000000, 0.551657 	| 5086.000000, 0.448343
+6003.000000, 0.529178 	| 5341.000000, 0.470822
+5943.000000, 0.523889 	| 5401.000000, 0.476111
+6083.000000, 0.536231 	| 5261.000000, 0.463769
+6012.000000, 0.529972 	| 5332.000000, 0.470028
+4267.000000, 0.376146 	| 7077.000000, 0.623854
+在一个观测data window内，第7天（6th）是形态发生日。结果是前面n天和该日close比较，和之后m天的close与之比较的结果。
+
+第一列是大于(hammer, 如果是hanging-man则是’小于‘)的次数，第二列是这个次数占总发生次数的比率。第三列和第四列分别是相反的情况。
+
+而根据hammer的数据显示，出现hammer形态后，之后大约10天内涨的几率几乎是1/2。这样的频率不足以采信hammer形态。
+
+或者说：或许有其他的参数参与，这个形态更有预示意义。
+[2017-10-10]
+'''
