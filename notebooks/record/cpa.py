@@ -1,10 +1,11 @@
 
-# TODO: 蜡烛图形态分析
+# 蜡烛图形态分析
+# 目前用于锤子线等几个形态TF出现概率的分析
 import sys, os
 import pickle
 from numpy import *;
 
-def analyze(m):    
+def analyze(m):
     t = m.T
     rows_count = len(t)
     print(rows_count)
@@ -12,7 +13,7 @@ def analyze(m):
         r = t[i,:].flatten().tolist()[0]
         count = len(r)
         print('%f, %f \t| %f, %f' % (r.count('T'), r.count('T') / count, r.count('F'), r.count('F') / count))
-    
+
 
 def parse(file, prefix='#'):
     rows = []
